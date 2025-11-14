@@ -62,7 +62,7 @@
 
   button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px #00eaff;
+    box-shadow: 0 0 25px #00d4ff, 0 0 10px #ff0000;
   }
 </style>
 </head>
@@ -74,8 +74,7 @@
   <h2>Login</h2>
   <p>Access your account using Google</p>
   <button id="googleLogin">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" 
-         alt="Google Logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google Logo">
     Continue with Google
   </button>
 </div>
@@ -86,20 +85,24 @@
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // Firebase config
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+    authDomain: "lphonk.firebaseapp.com",
+    projectId: "lphonk",
+    storageBucket: "lphonk.firebasestorage.app",
+    messagingSenderId: "193256977034",
+    appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+    measurementId: "G-5QMHMLDHBW"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
+  // Redirect users based on onboarding status
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -112,6 +115,7 @@
     }
   });
 
+  // Google login button
   document.getElementById("googleLogin").onclick = () => {
     signInWithPopup(auth, provider)
       .then(async (result) => {
