@@ -59,6 +59,32 @@
     transform: scale(1.05);
     box-shadow: 0 0 25px #00d4ff, 0 0 10px #ff0000;
   }
+
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(0,26,51,0.95);
+    border: 2px solid #00d4ff;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    width: 300px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 0 0 30px #00d4ff;
+  }
+  .modal.show {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .modal h2 {
+    margin-bottom: 10px;
+    color: #00d4ff;
+  }
 </style>
 </head>
 <body>
@@ -74,12 +100,17 @@
   </button>
 </div>
 
+<!-- Modal -->
+<div id="loginModal" class="modal">
+  <h2>Login Success</h2>
+  <p id="modalMessage">Welcome!</p>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
     authDomain: "lphonk.firebaseapp.com",
@@ -95,17 +126,18 @@
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
+  const modal = document.getElementById("loginModal");
+  const modalMsg = document.getElementById("modalMessage");
+
   document.getElementById("googleLogin").onclick = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // Reference to user document
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        // First-time login: create user document
+        // New user
         await setDoc(userRef, {
           name: user.displayName,
           email: user.email,
@@ -113,17 +145,24 @@
           onboardingCompleted: false,
           lastLogin: Date.now()
         });
-        window.location.href = "onboarding.html";
+        modalMsg.textContent = "Welcome to LPHONK!";
       } else {
-        const data = userSnap.data();
-        if (data.onboardingCompleted) {
-          // Completed onboarding → dashboard
-          window.location.href = "dashboard.html";
-        } else {
-          // Not completed onboarding → onboarding
-          window.location.href = "onboarding.html";
-        }
+        modalMsg.textContent = "Welcome back!";
       }
+
+      // Show modal
+      modal.classList.add("show");
+
+      // Redirect after 1.5 seconds
+      setTimeout(() => {
+        if (!userSnap.exists()) {
+          window.location.href = "onboarding.html";
+        } else {
+          const data = userSnap.data();
+          window.location.href = data.onboardingCompleted ? "dashboard.html" : "onboarding.html";
+        }
+      }, 1500);
+
     } catch (error) {
       console.error(error);
       alert(error.message);
