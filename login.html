@@ -79,13 +79,12 @@
   </button>
 </div>
 
-<!-- Firebase Scripts -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase config
+  // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
     authDomain: "lphonk.firebaseapp.com",
@@ -102,32 +101,35 @@
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // Redirect users based on onboarding status
+  // Redirect logged-in users automatically
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      const data = userDoc.data();
-      if (data && data.onboardingCompleted) {
+      if (userDoc.exists() && userDoc.data().onboardingCompleted) {
         window.location.href = "dashboard.html";
-      } else {
-        window.location.href = "onboarding.html";
       }
     }
   });
 
-  // Google login button
+  // Google login
   document.getElementById("googleLogin").onclick = () => {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
+
+        // Save user info to Firestore
         await setDoc(doc(db, "users", user.uid), {
           name: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           lastLogin: Date.now()
         }, { merge: true });
+
+        // Redirect to onboarding (if not completed)
+        window.location.href = "onboarding.html";
       })
       .catch((error) => {
+        console.error(error);
         alert(error.message);
       });
   };
