@@ -16,6 +16,7 @@
     justify-content: center;
     height: 100vh;
   }
+
   h1 {
     font-size: 60px;
     letter-spacing: 6px;
@@ -23,6 +24,7 @@
     text-shadow: 0 0 20px #00d4ff;
     margin-bottom: 20px;
   }
+
   .card {
     background: rgba(0,0,35,0.6);
     padding: 40px;
@@ -32,6 +34,7 @@
     width: 350px;
     text-align: center;
   }
+
   button {
     display: flex;
     align-items: center;
@@ -49,19 +52,17 @@
     box-shadow: 0 0 10px #00d4ff;
     transition: 0.2s;
   }
+
   button img {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     margin-right: 10px;
     vertical-align: middle;
   }
+
   button:hover {
     transform: scale(1.05);
     box-shadow: 0 0 25px #00eaff;
-  }
-  p a {
-    color: #66ccff;
-    text-decoration: none;
   }
 </style>
 </head>
@@ -73,10 +74,10 @@
   <h2>Login</h2>
   <p>Access your account using Google</p>
   <button id="googleLogin">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" 
+         alt="Google Logo">
     Continue with Google
   </button>
-  <p style="margin-top:15px;">Don't have an account? <a href="#">Sign Up</a></p>
 </div>
 
 <!-- Firebase Scripts -->
@@ -85,7 +86,6 @@
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Your Firebase config
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -100,38 +100,28 @@
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // Check auth state
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Check if user already completed onboarding
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const data = userDoc.data();
-
       if (data && data.onboardingCompleted) {
-        // Already done onboarding → go to dashboard
         window.location.href = "dashboard.html";
       } else {
-        // Not done onboarding → go to onboarding
         window.location.href = "onboarding.html";
       }
     }
   });
 
-  // Google login
   document.getElementById("googleLogin").onclick = () => {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
-
-        // Save basic user info in Firestore
         await setDoc(doc(db, "users", user.uid), {
           name: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           lastLogin: Date.now()
         }, { merge: true });
-
-        // Redirect handled by onAuthStateChanged
       })
       .catch((error) => {
         alert(error.message);
