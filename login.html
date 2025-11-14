@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPHONK — Login</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Poppins, sans-serif;
+    background: linear-gradient(#0a0a1a, #001a33);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  h1 {
+    font-size: 60px;
+    letter-spacing: 6px;
+    color: #00d4ff;
+    text-shadow: 0 0 20px #00d4ff;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: rgba(0,0,35,0.6);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid #00b8e6;
+    box-shadow: 0 0 20px #001a66;
+    width: 350px;
+    text-align: center;
+  }
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 0 10px #00d4ff;
+    transition: 0.2s;
+  }
+  button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00eaff;
+  }
+  p a {
+    color: #66ccff;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>LPHONK</h1>
+
+<div class="card">
+  <h2>Login</h2>
+  <p>Access your account using Google</p>
+  <button id="googleLogin">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo">
+    Continue with Google
+  </button>
+  <p style="margin-top:15px;">Don't have an account? <a href="#">Sign Up</a></p>
+</div>
+
+<!-- Firebase Scripts -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // Check auth state
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Check if user already completed onboarding
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const data = userDoc.data();
+
+      if (data && data.onboardingCompleted) {
+        // Already done onboarding → go to dashboard
+        window.location.href = "dashboard.html";
+      } else {
+        // Not done onboarding → go to onboarding
+        window.location.href = "onboarding.html";
+      }
+    }
+  });
+
+  // Google login
+  document.getElementById("googleLogin").onclick = () => {
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
+        const user = result.user;
+
+        // Save basic user info in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          lastLogin: Date.now()
+        }, { merge: true });
+
+        // Redirect handled by onAuthStateChanged
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
+</script>
+
+</body>
+</html>
