@@ -4,28 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LPHONK - Montagem & Funk Platform</title>
+
 <style>
+    html {
+        scroll-behavior: smooth; /* Smooth scroll for anchors */
+    }
+
     body {
         margin: 0;
         font-family: Arial, sans-serif;
         background: linear-gradient(#0a0a1a, #001a33);
         color: white;
-        scroll-behavior: smooth; /* Enables smooth scrolling */
     }
 
     /* NAVBAR */
     header {
-        position: fixed;
-        width: 100%;
-        top: 0;
-        left: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 20px 40px;
-        background: rgba(0,0,20,0.8);
         border-bottom: 2px solid #00d4ff;
-        z-index: 1000;
     }
 
     .logo {
@@ -35,18 +33,17 @@
         letter-spacing: 5px;
     }
 
-    nav a {
-        margin-left: 20px;
+    .btn {
         padding: 10px 20px;
         border-radius: 8px;
         text-decoration: none;
         font-weight: bold;
         transition: 0.3s;
-        color: white;
     }
 
     .btn-outline {
         border: 2px solid #00d4ff;
+        color: white;
     }
 
     .btn-outline:hover {
@@ -60,100 +57,218 @@
     }
 
     .btn-fill:hover {
-        background: #00eaff;
+        background: #00b8e6;
     }
 
-    /* HERO SECTION */
-    .hero-section {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+    /* HERO */
+    .hero {
         text-align: center;
-        padding-top: 80px; /* space for fixed navbar */
+        padding: 80px 20px;
     }
 
-    .hero-section h1 {
-        font-size: 60px;
-        color: #00d4ff;
-        text-shadow: 0 0 20px #00d4ff;
-        margin-bottom: 20px;
+    .hero h1 {
+        font-size: 50px;
+        font-weight: bold;
     }
 
-    .hero-section p {
-        font-size: 22px;
-        max-width: 600px;
-        margin-bottom: 30px;
+    .hero p {
+        font-size: 20px;
+        margin-top: 10px;
     }
 
     .hero-buttons a {
-        display: inline-block;
         margin: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* DESCRIPTION SECTION */
-    #description {
-        padding: 100px 40px;
-        background: rgba(0,0,20,0.8);
+    /* COVER GRID */
+    .covers {
+        padding: 40px;
+    }
+
+    .covers h2 {
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .cover-card {
+        background: #001a33;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .cover-card:hover {
+        transform: scale(1.05);
+    }
+
+    .cover-card img {
+        width: 100%;
+    }
+
+    .cover-info {
+        padding: 10px;
         text-align: center;
     }
 
-    #description h2 {
-        font-size: 50px;
-        color: #00d4ff;
+    /* ABOUT */
+    .about {
+        background: #001a44;
+        padding: 50px;
+        text-align: center;
+    }
+
+    .about-icons {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 20px;
+    }
+
+    /* FAQ */
+    .faq {
+        padding: 40px;
+    }
+
+    .faq h2 {
+        text-align: center;
         margin-bottom: 20px;
     }
 
-    #description p {
-        font-size: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-        line-height: 1.6;
+    .faq-box {
+        background: #001a33;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+
+    /* TIP SECTION */
+    .tip {
+        background: #001a44;
+        padding: 40px;
+        text-align: center;
     }
 
     /* FOOTER */
     footer {
-        text-align: center;
+        background: #001122;
         padding: 20px;
-        background: #001a33;
-        border-top: 2px solid #00d4ff;
-        margin-top: 50px;
+        text-align: center;
+        color: #8bbcd4;
+        margin-top: 20px;
     }
-
 </style>
+
 </head>
 <body>
 
 <header>
     <div class="logo">LPHONK</div>
-    <nav>
-        <a href="login.html" class="btn-outline">Login</a>
-        <a href="signup.html" class="btn-fill">Get Started</a>
-        <a href="#description" class="btn-outline">Explore</a>
-    </nav>
+    <div>
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-fill">Sign Up</a>
+    </div>
 </header>
 
-<section class="hero-section">
-    <h1>Welcome to LPHONK</h1>
-    <p>The ultimate platform for Montagem, Funk, Phonk & Trap. Discover new music, upload your tracks, and join the community.</p>
+<section class="hero">
+    <h1>The Ultimate Home for Montagem & Funk</h1>
+    <p>Upload, get reviewed, and share your underground tracks with real listeners.</p>
+    <br>
     <div class="hero-buttons">
-        <a href="login.html" class="btn-outline">Login</a>
-        <a href="signup.html" class="btn-fill">Get Started</a>
-        <a href="#description" class="btn-outline">Explore</a>
+        <a href="signup.html" class="btn btn-fill">Get Started</a>
+        <a href="#covers" class="btn btn-outline">Explore</a>
+        <a href="https://youtube.com/@DJLLW1" target="_blank" class="btn btn-fill" style="display:flex; align-items:center; justify-content:center;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" 
+                 alt="YouTube Logo" style="width:24px; height:24px; margin-right:10px;">
+            Subscribe on YouTube
+        </a>
     </div>
 </section>
 
-<section id="description">
-    <h2>About LPHONK</h2>
-    <p>LPHONK is a dedicated platform for music lovers and creators.  
-    Whether you are a listener who wants to explore fresh tracks or an artist aiming to share your own sounds, LPHONK gives you the perfect space.  
-    Discover trending Montagem, Funk, Phonk, and Trap tracks, get music approved by our community system, and interact with like-minded fans.</p>
+<section class="covers" id="covers">
+    <h2>🔥 Trending Montagem / Funk</h2>
+    <div class="grid">
+        <div class="cover-card">
+            <img src="cover1.jpg" alt="">
+            <div class="cover-info">Montagem Tomada — DJ Kai</div>
+        </div>
+        <div class="cover-card">
+            <img src="cover2.jpg" alt="">
+            <div class="cover-info">Passo Bem Solto — DJ LXX</div>
+        </div>
+        <div class="cover-card">
+            <img src="cover3.jpg" alt="">
+            <div class="cover-info">Mortals Funk — DJ Neo</div>
+        </div>
+        <div class="cover-card">
+            <img src="cover4.jpg" alt="">
+            <div class="cover-info">Veki Veki — DJ Flex</div>
+        </div>
+        <div class="cover-card">
+            <img src="cover5.jpg" alt="">
+            <div class="cover-info">Montagem Drift — DJ Phantom</div>
+        </div>
+        <div class="cover-card">
+            <img src="cover6.jpg" alt="">
+            <div class="cover-info">Funk Remix — DJ Blaze</div>
+        </div>
+    </div>
+</section>
+
+<section class="about">
+    <h2>Why LPHONK?</h2>
+    <p>LPHONK is built for montage and funk creators. Every upload is reviewed to keep the community real and safe.</p>
+    <div class="about-icons">
+        <div>🎵 Upload & Share</div>
+        <div>✅ Reviewed for Quality</div>
+        <div>🎧 Stream Underground Funk</div>
+        <div>💬 Get Feedback</div>
+    </div>
+</section>
+
+<section class="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-box">
+        <b>Q: Who can upload tracks?</b><br>
+        A: Anyone with an account — but uploads must pass admin review.
+    </div>
+
+    <div class="faq-box">
+        <b>Q: How long does review take?</b><br>
+        A: Usually 24–48 hours.
+    </div>
+
+    <div class="faq-box">
+        <b>Q: Can I listen without uploading?</b><br>
+        A: Yes! Anyone can explore the tracks.
+    </div>
+
+    <div class="faq-box">
+        <b>Q: Can friends help approve tracks?</b><br>
+        A: Yes, chosen admins can approve/reject uploads.
+    </div>
+</section>
+
+<section class="tip">
+    <h2>Tip of the Day</h2>
+    <p>🎵 Add subtle vinyl crackle for a classic underground montagem vibe.</p>
+    <br>
+    <a href="#" class="btn btn-fill">Random Funk Track</a>
 </section>
 
 <footer>
-    &copy; 2025 LPHONK. All Rights Reserved.
+    © 2025 LPHONK. All rights reserved.
 </footer>
 
 </body>
-</html>
+    </html>
