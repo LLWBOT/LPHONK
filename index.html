@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPHONK - Montagem & Funk Platform</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(#0a0a1a, #001a33);
+        color: white;
+        scroll-behavior: smooth; /* Enables smooth scrolling */
+    }
+
+    /* NAVBAR */
+    header {
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: rgba(0,0,20,0.8);
+        border-bottom: 2px solid #00d4ff;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 40px;
+        font-weight: 900;
+        color: #00d4ff;
+        letter-spacing: 5px;
+    }
+
+    nav a {
+        margin-left: 20px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        color: white;
+    }
+
+    .btn-outline {
+        border: 2px solid #00d4ff;
+    }
+
+    .btn-outline:hover {
+        background: #00d4ff;
+        color: black;
+    }
+
+    .btn-fill {
+        background: #00d4ff;
+        color: black;
+    }
+
+    .btn-fill:hover {
+        background: #00eaff;
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding-top: 80px; /* space for fixed navbar */
+    }
+
+    .hero-section h1 {
+        font-size: 60px;
+        color: #00d4ff;
+        text-shadow: 0 0 20px #00d4ff;
+        margin-bottom: 20px;
+    }
+
+    .hero-section p {
+        font-size: 22px;
+        max-width: 600px;
+        margin-bottom: 30px;
+    }
+
+    .hero-buttons a {
+        display: inline-block;
+        margin: 10px;
+    }
+
+    /* DESCRIPTION SECTION */
+    #description {
+        padding: 100px 40px;
+        background: rgba(0,0,20,0.8);
+        text-align: center;
+    }
+
+    #description h2 {
+        font-size: 50px;
+        color: #00d4ff;
+        margin-bottom: 20px;
+    }
+
+    #description p {
+        font-size: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* FOOTER */
+    footer {
+        text-align: center;
+        padding: 20px;
+        background: #001a33;
+        border-top: 2px solid #00d4ff;
+        margin-top: 50px;
+    }
+
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">LPHONK</div>
+    <nav>
+        <a href="login.html" class="btn-outline">Login</a>
+        <a href="signup.html" class="btn-fill">Get Started</a>
+        <a href="#description" class="btn-outline">Explore</a>
+    </nav>
+</header>
+
+<section class="hero-section">
+    <h1>Welcome to LPHONK</h1>
+    <p>The ultimate platform for Montagem, Funk, Phonk & Trap. Discover new music, upload your tracks, and join the community.</p>
+    <div class="hero-buttons">
+        <a href="login.html" class="btn-outline">Login</a>
+        <a href="signup.html" class="btn-fill">Get Started</a>
+        <a href="#description" class="btn-outline">Explore</a>
+    </div>
+</section>
+
+<section id="description">
+    <h2>About LPHONK</h2>
+    <p>LPHONK is a dedicated platform for music lovers and creators.  
+    Whether you are a listener who wants to explore fresh tracks or an artist aiming to share your own sounds, LPHONK gives you the perfect space.  
+    Discover trending Montagem, Funk, Phonk, and Trap tracks, get music approved by our community system, and interact with like-minded fans.</p>
+</section>
+
+<footer>
+    &copy; 2025 LPHONK. All Rights Reserved.
+</footer>
+
+</body>
+</html>
