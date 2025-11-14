@@ -16,7 +16,6 @@
     justify-content: center;
     height: 100vh;
   }
-
   h1 {
     font-size: 60px;
     letter-spacing: 6px;
@@ -24,7 +23,6 @@
     text-shadow: 0 0 20px #00d4ff;
     margin-bottom: 20px;
   }
-
   .card {
     background: rgba(0,0,35,0.6);
     padding: 40px;
@@ -34,7 +32,6 @@
     width: 350px;
     text-align: center;
   }
-
   button {
     display: flex;
     align-items: center;
@@ -52,14 +49,12 @@
     box-shadow: 0 0 10px #00d4ff;
     transition: 0.2s;
   }
-
   button img {
     width: 22px;
     height: 22px;
     margin-right: 10px;
     vertical-align: middle;
   }
-
   button:hover {
     transform: scale(1.05);
     box-shadow: 0 0 25px #00d4ff, 0 0 10px #ff0000;
@@ -80,59 +75,62 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-    authDomain: "lphonk.firebaseapp.com",
-    projectId: "lphonk",
-    storageBucket: "lphonk.firebasestorage.app",
-    messagingSenderId: "193256977034",
-    appId: "1:193256977034:web:38fd99c1da8e8f37507373",
-    measurementId: "G-5QMHMLDHBW"
-  };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+  authDomain: "lphonk.firebaseapp.com",
+  projectId: "lphonk",
+  storageBucket: "lphonk.firebasestorage.app",
+  messagingSenderId: "193256977034",
+  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+  measurementId: "G-5QMHMLDHBW"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
-  // Redirect logged-in users automatically
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists() && userDoc.data().onboardingCompleted) {
+document.getElementById("googleLogin").onclick = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Check if user already exists in Firestore
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      // First time login → create document
+      await setDoc(userRef, {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        onboardingCompleted: false,
+        lastLogin: Date.now()
+      });
+      // Redirect to onboarding
+      window.location.href = "onboarding.html";
+    } else {
+      const data = userSnap.data();
+      if (data.onboardingCompleted) {
+        // Already completed onboarding → dashboard
         window.location.href = "dashboard.html";
+      } else {
+        // Not completed onboarding → onboarding
+        window.location.href = "onboarding.html";
       }
     }
-  });
-
-  // Google login
-  document.getElementById("googleLogin").onclick = () => {
-    signInWithPopup(auth, provider)
-      .then(async (result) => {
-        const user = result.user;
-
-        // Save user info to Firestore
-        await setDoc(doc(db, "users", user.uid), {
-          name: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          lastLogin: Date.now()
-        }, { merge: true });
-
-        // Redirect to onboarding (if not completed)
-        window.location.href = "onboarding.html";
-      })
-      .catch((error) => {
-        console.error(error);
-        alert(error.message);
-      });
-  };
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+};
 </script>
 
 </body>
