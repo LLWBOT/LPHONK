@@ -68,69 +68,67 @@
 <div class="card">
   <h2>Login</h2>
   <p>Access your account using Google</p>
-  <button id="googleLogin">
+  <button type="button" id="googleLogin">
     <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google Logo">
     Continue with Google
   </button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-  authDomain: "lphonk.firebaseapp.com",
-  projectId: "lphonk",
-  storageBucket: "lphonk.firebasestorage.app",
-  messagingSenderId: "193256977034",
-  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
-  measurementId: "G-5QMHMLDHBW"
-};
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+    authDomain: "lphonk.firebaseapp.com",
+    projectId: "lphonk",
+    storageBucket: "lphonk.firebasestorage.app",
+    messagingSenderId: "193256977034",
+    appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+    measurementId: "G-5QMHMLDHBW"
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-document.getElementById("googleLogin").onclick = async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+  document.getElementById("googleLogin").onclick = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-    // Check if user already exists in Firestore
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
+      // Reference to user document
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-    if (!userSnap.exists()) {
-      // First time login → create document
-      await setDoc(userRef, {
-        name: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        onboardingCompleted: false,
-        lastLogin: Date.now()
-      });
-      // Redirect to onboarding
-      window.location.href = "onboarding.html";
-    } else {
-      const data = userSnap.data();
-      if (data.onboardingCompleted) {
-        // Already completed onboarding → dashboard
-        window.location.href = "dashboard.html";
-      } else {
-        // Not completed onboarding → onboarding
+      if (!userSnap.exists()) {
+        // First-time login: create user document
+        await setDoc(userRef, {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          onboardingCompleted: false,
+          lastLogin: Date.now()
+        });
         window.location.href = "onboarding.html";
+      } else {
+        const data = userSnap.data();
+        if (data.onboardingCompleted) {
+          // Completed onboarding → dashboard
+          window.location.href = "dashboard.html";
+        } else {
+          // Not completed onboarding → onboarding
+          window.location.href = "onboarding.html";
+        }
       }
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
     }
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
-};
+  };
 </script>
 
 </body>
