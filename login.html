@@ -1,190 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LPHONK — Login</title>
+
 <style>
-  :root{
-    --bg1:#0a0a1a; --bg2:#001a33; --neon:#00d4ff; --accent:#00b8e6;
-  }
-  html {box-sizing: border-box; -webkit-font-smoothing:antialiased;}
-  *,*::before,*::after{box-sizing:inherit}
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family:Inter, Poppins, system-ui, Arial, sans-serif;
-    background: linear-gradient(var(--bg1), var(--bg2));
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
+  body {
+    margin: 0;
+    font-family: Poppins, sans-serif;
+    background: linear-gradient(#0a0a1a, #001a33);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
   }
 
-  /* Card */
-  .card{
-    width:360px;
-    background:rgba(0,10,30,0.6);
-    border:1px solid rgba(0,184,230,0.12);
-    padding:36px;
-    border-radius:16px;
-    text-align:center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-  }
-  h1{
-    margin:0 0 8px;
-    font-size:48px;
-    letter-spacing:6px;
-    color:var(--neon);
-    text-shadow:0 0 18px rgba(0,212,255,0.12);
-  }
-  .subtitle{
-    margin:0 0 18px;
-    color:#cfefff;
-    opacity:0.9;
+  h1 {
+    font-size: 60px;
+    letter-spacing: 6px;
+    color: #00d4ff;
+    text-shadow: 0 0 20px #00d4ff;
+    margin-bottom: 20px;
   }
 
-  /* Google button */
-  .btn-google{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:0;
-    cursor:pointer;
-    font-weight:700;
-    background:#fff;
-    color:#000;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 12px rgba(0,212,255,0.06);
-    transition: transform .12s ease, box-shadow .12s ease;
-    font-size:15px;
-  }
-  .btn-google img{ width:22px; height:22px; display:block; }
-  .btn-google:active{ transform:scale(.995) }
-  .btn-google:hover{
-    transform:scale(1.03);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,255,0.12);
+  .card {
+    background: rgba(0,0,35,0.6);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid #00b8e6;
+    box-shadow: 0 0 20px #001a66;
+    width: 350px;
+    text-align: center;
   }
 
-  /* Modal (full-screen centered) for NEW users */
-  .modal-wrap{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    pointer-events:none;
-    z-index:1200;
-  }
-  .modal{
-    width:320px;
-    background: linear-gradient(180deg, rgba(0,18,36,0.95), rgba(0,10,20,0.98));
-    border-radius:14px;
-    padding:26px;
-    text-align:center;
-    border:2px solid var(--neon);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 40px rgba(0,212,255,0.08);
-    transform:translateY(-12px) scale(.9);
-    opacity:0;
-    transition: all .28s cubic-bezier(.2,.9,.2,1);
-    pointer-events:auto;
-  }
-  .modal.show{
-    transform:translateY(0) scale(1);
-    opacity:1;
-  }
-  .modal h2{ margin:0 0 8px; color:var(--neon); font-size:20px; }
-  .modal p{ margin:0; color:#dff6ff; opacity:.95 }
-
-  /* Toast (bottom) for returning users */
-  .toast{
-    position:fixed;
-    left:50%;
-    transform:translate(-50%, 110%);
-    bottom:24px;
-    background: linear-gradient(90deg, rgba(0,26,51,0.98), rgba(0,20,40,0.98));
-    color:#fff;
-    border-radius:12px;
-    padding:12px 18px;
-    border:1px solid rgba(0,212,255,0.08);
-    box-shadow:0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,212,255,0.06);
-    transition: transform .35s cubic-bezier(.2,.9,.2,1), opacity .25s;
-    opacity:0;
-    z-index:1300;
-    display:flex;
-    gap:12px;
-    align-items:center;
-    min-width:280px;
-    justify-content:center;
-  }
-  .toast.show{
-    transform:translate(-50%, 0);
-    opacity:1;
-  }
-  .toast .dot{
-    width:12px;height:12px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px var(--neon);
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 0 10px #00d4ff;
+    transition: 0.2s;
   }
 
-  /* small responsive */
-  @media (max-width:420px){
-    .card{ width:92%; padding:20px }
-    h1{ font-size:36px }
-    .modal{ width:86% }
+  button img {
+    width: 22px;
+    height: 22px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00d4ff, 0 0 10px #ff0000;
   }
 </style>
 </head>
 <body>
 
-  <div class="card" role="main" aria-labelledby="title">
-    <h1 id="title">LPHONK</h1>
-    <p class="subtitle">Login with Google to start — keep it montage/funk only.</p>
+<h1>LPHONK</h1>
 
-    <button type="button" id="googleLogin" class="btn-google" aria-label="Continue with Google">
-      <!-- Reliable G icon -->
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
-      Continue with Google
-    </button>
-  </div>
+<div class="card">
+  <h2>Login</h2>
+  <p>Access your account using Google</p>
 
-  <!-- Modal for NEW users -->
-  <div class="modal-wrap" aria-hidden="true">
-    <div id="newModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display:none">
-      <h2 id="modalTitle">Login successful — Welcome to LPHONK!</h2>
-      <p id="modalSub">Thanks for joining. Redirecting you now…</p>
-    </div>
-  </div>
+  <button type="button" id="googleLogin">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google Logo">
+    Continue with Google
+  </button>
 
-  <!-- Toast for returning users -->
-  <div id="toast" class="toast" role="status" aria-live="polite" style="display:none">
-    <div class="dot" aria-hidden="true"></div>
-    <div id="toastText">Welcome back — Logged in successfully!</div>
-  </div>
+</div>
 
 <script type="module">
-  // Firebase modules
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // ---------- CONFIG ----------
+  // ✅ FIXED CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-    authDomain: "lphonk.firebaseapp.com",
+    authDomain: "lphonk.netlify.app",   // << CORRECTED FOR NETLIFY
     projectId: "lphonk",
     storageBucket: "lphonk.firebasestorage.app",
     messagingSenderId: "193256977034",
@@ -192,133 +98,52 @@
     measurementId: "G-5QMHMLDHBW"
   };
 
+  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // UI refs
-  const btn = document.getElementById("googleLogin");
-  const newModal = document.getElementById("newModal");
-  const toast = document.getElementById("toast");
-  const toastText = document.getElementById("toastText");
 
-  // Utility: show modal or toast
-  function showModal(message, sub, timeout = 1500){
-    newModal.querySelector("#modalTitle").textContent = message;
-    newModal.querySelector("#modalSub").textContent = sub || "";
-    newModal.style.display = "block";
-    // animate
-    requestAnimationFrame(()=> newModal.classList.add("show"));
-    setTimeout(()=> {
-      // fade out then redirect handled where called
-    }, timeout);
-  }
-  function showToast(message, timeout = 1000){
-    toastText.textContent = message;
-    toast.style.display = "flex";
-    requestAnimationFrame(()=> toast.classList.add("show"));
-    setTimeout(()=> {
-      toast.classList.remove("show");
-      setTimeout(()=> toast.style.display = "none", 300);
-    }, timeout);
-  }
-
-  // Handle redirect result first (mobile/redirect fallback)
-  // This must run on page load to catch redirect sign-ins.
-  getRedirectResult(auth)
-    .then(async (result) => {
-      if (!result || !result.user) return;
-      console.log("Redirect result user:", result.user.uid);
-      await handleSignedInUser(result.user, /*fromRedirect=*/true);
-    })
-    .catch((err) => {
-      console.error("Redirect handling error:", err);
-    });
-
-  // Detect mobile or popup-blocking situations
-  function isMobileOrBlocked(){
-    // simple UA mobile check
-    const ua = navigator.userAgent || navigator.vendor || "";
-    if (/android|iphone|ipad|ipod/i.test(ua)) return true;
-    return false;
-  }
-
-  // Primary click handler
-  btn.addEventListener("click", async () => {
+  // =======================
+  //       LOGIN BUTTON
+  // =======================
+  document.getElementById("googleLogin").onclick = async () => {
     try {
-      if (isMobileOrBlocked()) {
-        // mobile: redirect flow (reliable)
-        await signInWithRedirect(auth, provider);
-        // user will be redirected and getRedirectResult will handle results on return
-        return;
-      }
-
-      // Desktop: try popup first
       const result = await signInWithPopup(auth, provider);
-      if (!result || !result.user) throw new Error("No user returned from popup.");
-      console.log("Popup login user:", result.user.uid);
-      await handleSignedInUser(result.user, /*fromRedirect=*/false);
-    } catch (error) {
-      console.error("Login attempt error:", error);
-      // If popup blocked or fails, fallback to redirect flow
-      if (error && error.code && (error.code === 'auth/popup-blocked' || error.code === 'auth/operation-not-supported-in-this-environment')) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        alert(error.message || "Login failed. Check console for details.");
-      }
-    }
-  });
+      const user = result.user;
 
-  // Core handler: receives a firebase.User
-  async function handleSignedInUser(user, fromRedirect){
-    try {
-      const uid = user.uid;
-      const userRef = doc(db, "users", uid);
+      const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        // NEW USER
-        console.log("Creating new user doc for", uid);
+        // ▶ First time user → create document
         await setDoc(userRef, {
-          name: user.displayName || "",
-          email: user.email || "",
-          photoURL: user.photoURL || "",
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
           onboardingCompleted: false,
-          createdAt: Date.now(),
           lastLogin: Date.now()
-        }, { merge: true });
+        });
 
-        // Show full modal for new users
-        showModal("Login successful — Welcome to LPHONK!", "Thanks for joining. Redirecting you now…", 1600);
-
-        // Redirect after modal
-        setTimeout(() => {
-          window.location.href = "onboarding.html";
-        }, 1500);
-
+        window.location.href = "onboarding.html";
       } else {
-        // RETURNING USER
-        const data = userSnap.data() || {};
-        console.log("Returning user data:", data);
+        // ▶ Existing user → check status
+        const data = userSnap.data();
 
-        // Show toast welcome back
-        showToast("Welcome back — Logged in successfully!", 1200);
-
-        // Redirect after short delay
-        setTimeout(() => {
-          if (data.onboardingCompleted) {
-            window.location.href = "dashboard.html";
-          } else {
-            window.location.href = "onboarding.html";
-          }
-        }, 1100);
+        if (data.onboardingCompleted === true) {
+          window.location.href = "dashboard.html";
+        } else {
+          window.location.href = "onboarding.html";
+        }
       }
-    } catch (err) {
-      console.error("handleSignedInUser error:", err);
-      alert("Login succeeded but something went wrong saving your data. Check console.");
+
+    } catch (error) {
+      console.error(error);
+      alert("Login error: " + error.message);
     }
-  }
+  };
 </script>
+
 </body>
 </html>
