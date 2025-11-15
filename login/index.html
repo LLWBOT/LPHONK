@@ -88,19 +88,18 @@
   </div>
 
   <script type="module">
-    // Using the latest stable CDN imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { 
       getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, 
       setPersistence, browserLocalPersistence 
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // 🛑 CRITICAL: Ensure these values EXACTLY match your lphonk project settings!
+    // ✅ Ensure these values match your Firebase project settings
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws", 
       authDomain: "lphonk.firebaseapp.com", 
       projectId: "lphonk",
-      storageBucket: "lphonk.firebasestorage.app", // Verified to be correct for your project
+      storageBucket: "lphonk.firebasestorage.app", // as shown in your Firebase settings
       messagingSenderId: "193256977034",
       appId: "1:193256977034:web:38fd99c1da8e8f37507373", 
       measurementId: "G-5QMHMLDHBW"
@@ -112,23 +111,11 @@
     provider.addScope("email");
     provider.addScope("profile");
 
-    // ==========================================================
-    // 💡 THE CRITICAL FIX: EXPLICITLY SETTING AUTH DOMAIN PARAMETER
-    // This addresses the issue where the modular SDK fails to correctly 
-    // process the redirect result token when using the config object method.
-    // ==========================================================
-    provider.setCustomParameters({
-        'hd': firebaseConfig.authDomain
-    });
-
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
-    /** Logs a message to the status area. */
     function log(msg, isError = false) {
-      if (isError) {
-        statusEl.style.color = "#ff6666";
-      }
+      if (isError) statusEl.style.color = "#ff6666";
       statusEl.textContent = statusEl.textContent.trim() + "\n" + msg;
       statusEl.scrollTop = statusEl.scrollHeight; 
     }
@@ -138,57 +125,37 @@
     setPersistence(auth, browserLocalPersistence)
       .then(() => {
         log("✅ Persistence set to browserLocalPersistence");
-
-        // Handle redirect result after page load
         log("🔎 Checking redirect result...");
         getRedirectResult(auth)
           .then((result) => {
             if (result && result.user) {
-              // --- SUCCESS BLOCK ---
               log("🎉 User found via redirect result!");
               log("👤 UID: " + result.user.uid);
               log("📧 Email: " + (result.user.email || "none"));
               log("👤 Name: " + (result.user.displayName || "none"));
               statusEl.style.color = "#0ff";
-              
-              // Redirect quickly for good UX
-              setTimeout(() => {
-                window.location.href = "/dashboard/";
-              }, 500); 
-              
+              setTimeout(() => window.location.href = "/dashboard/", 500);
             } else {
-              log("⚠️ No user found in redirect result. This is expected on first load, or indicates a configuration issue.");
-              
+              log("⚠️ No user found in redirect result.");
               if (auth.currentUser) {
-                log("👤 Current user found (redirecting):");
+                log("👤 Current user exists:");
                 log("UID: " + auth.currentUser.uid);
                 statusEl.style.color = "#0ff";
-
-                setTimeout(() => {
-                  window.location.href = "/dashboard/";
-                }, 500);
+                setTimeout(() => window.location.href = "/dashboard/", 500);
               } else {
                 log("❌ No logged-in user found. Ready for login.");
                 statusEl.style.color = "#aaa"; 
               }
             }
           })
-          .catch((err) => {
-            log("❌ Error processing redirect result. Check the console for full error.", true);
-            log("Error details: " + err.message, true);
-          });
+          .catch((err) => log("❌ Error in getRedirectResult: " + err.message, true));
       })
-      .catch((err) => {
-        log("❌ Error setting persistence: " + err.message, true);
-      });
+      .catch((err) => log("❌ Error setting persistence: " + err.message, true));
 
-    // Button triggers redirect
     loginBtn.addEventListener("click", () => {
       log("⏳ Starting signInWithRedirect...");
       signInWithRedirect(auth, provider)
-        .catch((err) => {
-          log("❌ Error starting redirect (check popup blockers): " + err.message, true);
-        });
+        .catch((err) => log("❌ Error starting redirect: " + err.message, true));
     });
   </script>
 </body>
