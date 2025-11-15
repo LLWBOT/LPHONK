@@ -31,12 +31,18 @@
       font-size: 16px;
       font-weight: bold;
     }
+    #loading {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <div class="box">
     <h1>Dashboard</h1>
     <p id="status">Checking login status...</p>
+    <p id="loading">⏳ Loading...</p>
     <button id="logoutBtn" style="display:none;">Log Out</button>
   </div>
 
@@ -61,24 +67,30 @@
 
     const statusEl = document.getElementById("status");
     const logoutBtn = document.getElementById("logoutBtn");
+    const loadingEl = document.getElementById("loading");
 
     // 🔥 Check login state
     onAuthStateChanged(auth, (user) => {
       if (user) {
         statusEl.textContent = "✅ Logged in as " + user.displayName + " (" + user.email + ")";
         logoutBtn.style.display = "inline-block";
+        loadingEl.style.display = "none";
       } else {
         statusEl.textContent = "❌ Not logged in";
         logoutBtn.style.display = "none";
+        loadingEl.style.display = "none";
       }
     });
 
     // 🔥 Log out
     logoutBtn.addEventListener("click", () => {
+      loadingEl.style.display = "block";
+      loadingEl.textContent = "⏳ Logging out...";
       signOut(auth).then(() => {
         alert("You have been logged out.");
         window.location.href = "login.html";
       }).catch((err) => {
+        loadingEl.style.display = "none";
         alert("Logout error: " + err.message);
       });
     });
