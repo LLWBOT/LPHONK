@@ -44,7 +44,7 @@
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
-    // 🔥 Handle redirect result when coming back from Google
+    // 🔥 Handle redirect result immediately
     statusEl.textContent = "Redirected back to site… checking login result…";
 
     getRedirectResult(auth)
@@ -55,7 +55,7 @@
             window.location.href = "dashboard.html";
           }, 1500);
         } else {
-          statusEl.textContent = "No login result found. Please try again.";
+          statusEl.textContent = "⚠️ No login result found. Try again.";
         }
       })
       .catch((err) => {
