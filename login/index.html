@@ -32,9 +32,9 @@
     // ✅ Correct Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-      authDomain: "lphonk.firebaseapp.com",   // keep firebaseapp.com for handler
+      authDomain: "lphonk.firebaseapp.com",   // must be firebaseapp.com
       projectId: "lphonk",
-      storageBucket: "lphonk.appspot.com",
+      storageBucket: "lphonk.appspot.com",    // ✅ storage buckets always use appspot.com
       messagingSenderId: "193256977034",
       appId: "1:193256977034:web:38fd99c1da8e8f37507373",
       measurementId: "G-5QMHMLDHBW"
@@ -43,6 +43,8 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    provider.addScope("email");
+    provider.addScope("profile");
 
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
@@ -62,7 +64,7 @@
         getRedirectResult(auth)
           .then((result) => {
             if (result && result.user) {
-              log("🎉 User found!");
+              log("🎉 User found via redirect result!");
               log("👤 UID: " + result.user.uid);
               log("📧 Email: " + (result.user.email || "none"));
               log("👤 Name: " + (result.user.displayName || "none"));
@@ -72,6 +74,18 @@
               }, 3000);
             } else {
               log("⚠️ No user found in redirect result.");
+              if (auth.currentUser) {
+                log("👤 But currentUser exists:");
+                log("UID: " + auth.currentUser.uid);
+                log("Email: " + auth.currentUser.email);
+                log("Name: " + auth.currentUser.displayName);
+                statusEl.style.color = "#0ff";
+                setTimeout(() => {
+                  window.location.href = "/dashboard/";
+                }, 3000);
+              } else {
+                log("❌ No currentUser either.");
+              }
             }
           })
           .catch((err) => {
