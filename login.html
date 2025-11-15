@@ -62,8 +62,14 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } 
-      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      signInWithRedirect, 
+      getRedirectResult,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
@@ -79,24 +85,43 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 🔥 Handle Redirect Result (mobile login)
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        window.location.href = "dashboard.html";
+    // 🔥 Always listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User logged in:", user);
+
+        // Check if user is new (creationTime == lastSignInTime)
+        if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+          window.location.href = "onboarding.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
       }
     });
+
+    // 🔥 Handle redirect result explicitly
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          console.log("Redirect login success:", result.user);
+        }
+      })
+      .catch((err) => {
+        console.error("Redirect error:", err);
+        alert("Login error: " + err.message);
+      });
 
     // Detect if mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     document.getElementById("googleLogin").addEventListener("click", () => {
       if (isMobile) {
-        // 🔥 Mobile must use redirect
         signInWithRedirect(auth, provider);
       } else {
-        // Desktop can use popup
         signInWithPopup(auth, provider)
-          .then(() => window.location.href = "dashboard.html")
+          .then((result) => {
+            console.log("Popup login success:", result.user);
+          })
           .catch((err) => alert("Login error: " + err.message));
       }
     });
