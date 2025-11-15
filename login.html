@@ -1,149 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPHONK — Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lphonk – Login</title>
 
-<style>
-  body {
-    margin: 0;
-    font-family: Poppins, sans-serif;
-    background: linear-gradient(#0a0a1a, #001a33);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-
-  h1 {
-    font-size: 60px;
-    letter-spacing: 6px;
-    color: #00d4ff;
-    text-shadow: 0 0 20px #00d4ff;
-    margin-bottom: 20px;
-  }
-
-  .card {
-    background: rgba(0,0,35,0.6);
-    padding: 40px;
-    border-radius: 20px;
-    border: 1px solid #00b8e6;
-    box-shadow: 0 0 20px #001a66;
-    width: 350px;
-    text-align: center;
-  }
-
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
-    background: #fff;
-    color: black;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 20px;
-    box-shadow: 0 0 10px #00d4ff;
-    transition: 0.2s;
-  }
-
-  button img {
-    width: 22px;
-    height: 22px;
-    margin-right: 10px;
-    vertical-align: middle;
-  }
-
-  button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px #00d4ff, 0 0 10px #ff0000;
-  }
-</style>
-</head>
-<body>
-
-<h1>LPHONK</h1>
-
-<div class="card">
-  <h2>Login</h2>
-  <p>Access your account using Google</p>
-
-  <button type="button" id="googleLogin">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google Logo">
-    Continue with Google
-  </button>
-
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  // ✅ FIXED CONFIG
-  const firebaseConfig = {
-    apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-    authDomain: "lphonk.netlify.app",   // << CORRECTED FOR NETLIFY
-    projectId: "lphonk",
-    storageBucket: "lphonk.firebasestorage.app",
-    messagingSenderId: "193256977034",
-    appId: "1:193256977034:web:38fd99c1da8e8f37507373",
-    measurementId: "G-5QMHMLDHBW"
-  };
-
-  // Init Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-
-
-  // =======================
-  //       LOGIN BUTTON
-  // =======================
-  document.getElementById("googleLogin").onclick = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        // ▶ First time user → create document
-        await setDoc(userRef, {
-          name: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          onboardingCompleted: false,
-          lastLogin: Date.now()
-        });
-
-        window.location.href = "onboarding.html";
-      } else {
-        // ▶ Existing user → check status
-        const data = userSnap.data();
-
-        if (data.onboardingCompleted === true) {
-          window.location.href = "dashboard.html";
-        } else {
-          window.location.href = "onboarding.html";
-        }
-      }
-
-    } catch (error) {
-      console.error(error);
-      alert("Login error: " + error.message);
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      font-family: Arial, sans-serif;
+      color: white;
     }
-  };
-</script>
+
+    .login-box {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 260px;
+      margin: auto;
+      padding: 12px;
+      border-radius: 50px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      border: none;
+    }
+
+    .google-btn img {
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-box">
+    <h1>Lphonk Login</h1>
+
+    <button class="google-btn" id="googleLogin">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
+      Continue with Google
+    </button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } 
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+      authDomain: "lphonk.firebaseapp.com",
+      projectId: "lphonk",
+      storageBucket: "lphonk.firebasestorage.app",
+      messagingSenderId: "193256977034",
+      appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+      measurementId: "G-5QMHMLDHBW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // 🔥 Handle Redirect Result (mobile login)
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // Detect if mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    document.getElementById("googleLogin").addEventListener("click", () => {
+      if (isMobile) {
+        // 🔥 Mobile must use redirect
+        signInWithRedirect(auth, provider);
+      } else {
+        // Desktop can use popup
+        signInWithPopup(auth, provider)
+          .then(() => window.location.href = "dashboard.html")
+          .catch((err) => alert("Login error: " + err.message));
+      }
+    });
+  </script>
 
 </body>
 </html>
