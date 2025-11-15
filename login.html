@@ -42,6 +42,12 @@
       width: 24px;
       height: 24px;
     }
+    #loading {
+      display: none;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -51,6 +57,7 @@
       <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
       Continue with Google
     </button>
+    <p id="loading">⏳ Loading, please wait...</p>
   </div>
 
   <!-- Firebase SDK -->
@@ -78,12 +85,18 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Handle redirect result (mobile login)
+    const loadingEl = document.getElementById("loading");
+    const loginBtn = document.getElementById("googleLogin");
+
+    // 🔥 Handle redirect result when coming back from Google
     getRedirectResult(auth)
       .then((result) => {
         if (result && result.user) {
-          alert("Login successful! Welcome " + result.user.displayName);
-          window.location.href = "dashboard.html";
+          loadingEl.style.display = "block";
+          loadingEl.textContent = "✅ Login successful! Redirecting...";
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
         }
       })
       .catch((err) => {
@@ -94,16 +107,23 @@
     // Detect if mobile
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    document.getElementById("googleLogin").addEventListener("click", () => {
+    loginBtn.addEventListener("click", () => {
+      loadingEl.style.display = "block";
+      loadingEl.textContent = "⏳ Connecting to Google...";
       if (isMobile) {
         signInWithRedirect(auth, provider);
       } else {
         signInWithPopup(auth, provider)
           .then((result) => {
-            alert("Login successful! Welcome " + result.user.displayName);
-            window.location.href = "dashboard.html";
+            loadingEl.textContent = "✅ Login successful! Redirecting...";
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1000);
           })
-          .catch((err) => alert("Login error: " + err.message));
+          .catch((err) => {
+            loadingEl.style.display = "none";
+            alert("Login error: " + err.message);
+          });
       }
     });
   </script>
