@@ -3,36 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lphonk – Login</title>
+  <title>Lphonk – Login (Debug)</title>
   <style>
     body { margin:0; height:100vh; display:flex; justify-content:center; align-items:center; background:black; font-family:Arial,sans-serif; color:white; }
     .login-box { text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:20px; box-shadow:0 0 20px rgba(0,0,0,0.4); }
     .google-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:260px; margin:auto; padding:12px; border-radius:50px; background:white; color:black; font-weight:bold; cursor:pointer; font-size:16px; border:none; }
     .google-btn img { width:24px; height:24px; }
-    #status { margin-top:20px; font-size:16px; color:#ccc; }
+    #status { margin-top:20px; font-size:14px; color:#0f0; text-align:left; white-space:pre-line; max-height:300px; overflow:auto; }
   </style>
 </head>
 <body>
   <div class="login-box">
-    <h1>Lphonk Login</h1>
+    <h1>Lphonk Login (Debug)</h1>
     <button class="google-btn" id="googleLogin">
       <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
       Continue with Google
     </button>
-    <p id="status"></p>
+    <p id="status">🔧 Waiting for action…</p>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence } 
-      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+      getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, 
+      setPersistence, browserLocalPersistence 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // ✅ Correct Firebase config (use firebaseapp.com domain)
+    // ✅ Correct Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-      authDomain: "lphonk.firebaseapp.com",   // important: use firebaseapp.com
+      authDomain: "lphonk.firebaseapp.com",   // keep firebaseapp.com for handler
       projectId: "lphonk",
-      storageBucket: "lphonk.appspot.com",    // corrected bucket domain
+      storageBucket: "lphonk.appspot.com",
       messagingSenderId: "193256977034",
       appId: "1:193256977034:web:38fd99c1da8e8f37507373",
       measurementId: "G-5QMHMLDHBW"
@@ -45,27 +47,51 @@
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
-    // Ensure persistence so session survives redirect
-    setPersistence(auth, browserLocalPersistence).then(() => {
-      // Handle redirect result immediately
-      getRedirectResult(auth)
-        .then((result) => {
-          if (result && result.user) {
-            statusEl.textContent = "✅ Login successful! Redirecting to dashboard…";
-            setTimeout(() => {
-              window.location.href = "/dashboard/";
-            }, 1500);
-          }
+    function log(msg) {
+      statusEl.textContent += "\n" + msg;
+    }
+
+    log("🔧 Firebase initialized. Setting persistence...");
+
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        log("✅ Persistence set to browserLocalPersistence");
+
+        // Handle redirect result after page load
+        log("🔎 Checking redirect result...");
+        getRedirectResult(auth)
+          .then((result) => {
+            if (result && result.user) {
+              log("🎉 User found!");
+              log("👤 UID: " + result.user.uid);
+              log("📧 Email: " + (result.user.email || "none"));
+              log("👤 Name: " + (result.user.displayName || "none"));
+              statusEl.style.color = "#0ff";
+              setTimeout(() => {
+                window.location.href = "/dashboard/";
+              }, 3000);
+            } else {
+              log("⚠️ No user found in redirect result.");
+            }
+          })
+          .catch((err) => {
+            log("❌ Error in getRedirectResult: " + err.message);
+          });
+      })
+      .catch((err) => {
+        log("❌ Error setting persistence: " + err.message);
+      });
+
+    // Button triggers redirect
+    loginBtn.addEventListener("click", () => {
+      log("⏳ Starting signInWithRedirect...");
+      signInWithRedirect(auth, provider)
+        .then(() => {
+          log("➡️ Redirect initiated successfully.");
         })
         .catch((err) => {
-          statusEl.textContent = "❌ Login error: " + err.message;
+          log("❌ Error starting redirect: " + err.message);
         });
-    });
-
-    // Button triggers redirect to Google
-    loginBtn.addEventListener("click", () => {
-      statusEl.textContent = "⏳ Redirecting to Google login…";
-      signInWithRedirect(auth, provider);
     });
   </script>
 </body>
