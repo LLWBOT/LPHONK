@@ -5,75 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lphonk – Login</title>
   <style>
-    body { 
-        margin:0; 
-        height:100vh; 
-        display:flex; 
-        justify-content:center; 
-        align-items:center; 
-        background:linear-gradient(135deg, #1f1f1f, #0a0a0a); 
-        font-family: 'Inter', sans-serif; 
-        color:white; 
-        padding: 20px;
-    }
-    .login-box { 
-        text-align:center; 
-        padding:40px; 
-        background:rgba(255,255,255,0.08); 
-        border-radius:20px; 
-        box-shadow:0 10px 30px rgba(0,0,0,0.5);
-        max-width: 350px;
-        width: 100%;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    h1 {
-        font-size: 1.8rem;
-        margin-bottom: 5px;
-        font-weight: 700;
-    }
-    p.subtext {
-        color: #aaa;
-        margin-bottom: 25px;
-    }
-    .google-btn { 
-        display:flex; 
-        align-items:center; 
-        justify-content:center; 
-        gap:10px; 
-        width:100%;
-        padding:12px; 
-        border-radius:50px; 
-        background:white; 
-        color:#1f1f1f; 
-        font-weight:bold; 
-        cursor:pointer; 
-        font-size:16px; 
-        border:none; 
-        transition: background 0.3s, transform 0.1s;
-    }
-    .google-btn:hover {
-        background: #f0f0f0;
-    }
-    .google-btn:active {
-        transform: scale(0.98);
-    }
-    .google-btn img { 
-        width:24px; 
-        height:24px; 
-    }
-    #status { 
-        margin-top:20px; 
-        padding: 15px;
-        font-size:14px; 
-        color:#0ff; 
-        background: rgba(0,0,0,0.2);
-        border-radius: 8px;
-        text-align:left; 
-        white-space:pre-line; 
-        max-height:150px; 
-        overflow:auto;
-        border: 1px solid #0ff3;
-    }
+    body { margin:0; height:100vh; display:flex; justify-content:center; align-items:center;
+           background:linear-gradient(135deg,#1f1f1f,#0a0a0a); font-family:'Inter',sans-serif; color:white; }
+    .login-box { text-align:center; padding:40px; background:rgba(255,255,255,0.08); border-radius:20px;
+                 box-shadow:0 10px 30px rgba(0,0,0,0.5); max-width:350px; width:100%; border:1px solid rgba(255,255,255,0.1); }
+    h1 { font-size:1.8rem; margin-bottom:5px; font-weight:700; }
+    p.subtext { color:#aaa; margin-bottom:25px; }
+    .google-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px;
+                  border-radius:50px; background:white; color:#1f1f1f; font-weight:bold; cursor:pointer; font-size:16px; border:none; }
+    .google-btn img { width:24px; height:24px; }
+    #status { margin-top:20px; padding:15px; font-size:14px; color:#0ff; background:rgba(0,0,0,0.2);
+              border-radius:8px; text-align:left; white-space:pre-line; max-height:150px; overflow:auto; border:1px solid #0ff3; }
   </style>
 </head>
 <body>
@@ -89,19 +31,16 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { 
-      getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, 
-      setPersistence, browserLocalPersistence 
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // ✅ Ensure these values match your Firebase project settings
     const firebaseConfig = {
-      apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws", 
-      authDomain: "lphonk.firebaseapp.com", 
+      apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+      authDomain: "lphonk.firebaseapp.com",
       projectId: "lphonk",
-      storageBucket: "lphonk.firebasestorage.app", // as shown in your Firebase settings
+      storageBucket: "lphonk.firebasestorage.app",
       messagingSenderId: "193256977034",
-      appId: "1:193256977034:web:38fd99c1da8e8f37507373", 
+      appId: "1:193256977034:web:38fd99c1da8e8f37507373",
       measurementId: "G-5QMHMLDHBW"
     };
 
@@ -114,48 +53,26 @@
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
-    function log(msg, isError = false) {
-      if (isError) statusEl.style.color = "#ff6666";
-      statusEl.textContent = statusEl.textContent.trim() + "\n" + msg;
-      statusEl.scrollTop = statusEl.scrollHeight; 
+    function log(msg) {
+      statusEl.textContent += "\n" + msg;
+      statusEl.scrollTop = statusEl.scrollHeight;
     }
 
-    log("🔧 Firebase initialized. Setting persistence...");
+    // 🔎 Listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        log("🎉 Logged in as: " + (user.email || user.uid));
+        setTimeout(() => window.location.href = "/dashboard/", 1000);
+      } else {
+        log("❌ No user logged in yet.");
+      }
+    });
 
-    setPersistence(auth, browserLocalPersistence)
-      .then(() => {
-        log("✅ Persistence set to browserLocalPersistence");
-        log("🔎 Checking redirect result...");
-        getRedirectResult(auth)
-          .then((result) => {
-            if (result && result.user) {
-              log("🎉 User found via redirect result!");
-              log("👤 UID: " + result.user.uid);
-              log("📧 Email: " + (result.user.email || "none"));
-              log("👤 Name: " + (result.user.displayName || "none"));
-              statusEl.style.color = "#0ff";
-              setTimeout(() => window.location.href = "/dashboard/", 500);
-            } else {
-              log("⚠️ No user found in redirect result.");
-              if (auth.currentUser) {
-                log("👤 Current user exists:");
-                log("UID: " + auth.currentUser.uid);
-                statusEl.style.color = "#0ff";
-                setTimeout(() => window.location.href = "/dashboard/", 500);
-              } else {
-                log("❌ No logged-in user found. Ready for login.");
-                statusEl.style.color = "#aaa"; 
-              }
-            }
-          })
-          .catch((err) => log("❌ Error in getRedirectResult: " + err.message, true));
-      })
-      .catch((err) => log("❌ Error setting persistence: " + err.message, true));
-
+    // Button triggers redirect
     loginBtn.addEventListener("click", () => {
-      log("⏳ Starting signInWithRedirect...");
+      log("⏳ Redirecting to Google sign-in...");
       signInWithRedirect(auth, provider)
-        .catch((err) => log("❌ Error starting redirect: " + err.message, true));
+        .catch((err) => log("❌ Error starting redirect: " + err.message));
     });
   </script>
 </body>
