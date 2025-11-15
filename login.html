@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lphonk – Login</title>
-
   <style>
     body {
       margin: 0;
@@ -16,7 +15,6 @@
       font-family: Arial, sans-serif;
       color: white;
     }
-
     .login-box {
       text-align: center;
       padding: 40px;
@@ -24,7 +22,6 @@
       border-radius: 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
-
     .google-btn {
       display: flex;
       align-items: center;
@@ -41,18 +38,15 @@
       font-size: 16px;
       border: none;
     }
-
     .google-btn img {
       width: 24px;
       height: 24px;
     }
   </style>
 </head>
-
 <body>
   <div class="login-box">
     <h1>Lphonk Login</h1>
-
     <button class="google-btn" id="googleLogin">
       <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
       Continue with Google
@@ -67,8 +61,7 @@
       GoogleAuthProvider, 
       signInWithPopup, 
       signInWithRedirect, 
-      getRedirectResult,
-      onAuthStateChanged
+      getRedirectResult
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -85,25 +78,12 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 🔥 Always listen for auth state changes
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("User logged in:", user);
-
-        // Check if user is new (creationTime == lastSignInTime)
-        if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-          window.location.href = "onboarding.html";
-        } else {
-          window.location.href = "dashboard.html";
-        }
-      }
-    });
-
-    // 🔥 Handle redirect result explicitly
+    // Handle redirect result (mobile login)
     getRedirectResult(auth)
       .then((result) => {
         if (result && result.user) {
-          console.log("Redirect login success:", result.user);
+          alert("Login successful! Welcome " + result.user.displayName);
+          window.location.href = "dashboard.html";
         }
       })
       .catch((err) => {
@@ -120,12 +100,12 @@
       } else {
         signInWithPopup(auth, provider)
           .then((result) => {
-            console.log("Popup login success:", result.user);
+            alert("Login successful! Welcome " + result.user.displayName);
+            window.location.href = "dashboard.html";
           })
           .catch((err) => alert("Login error: " + err.message));
       }
     });
   </script>
-
 </body>
 </html>
