@@ -24,14 +24,15 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } 
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence } 
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // ✅ Correct Firebase config (use firebaseapp.com domain)
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-      authDomain: "lphonk.firebaseapp.com",
+      authDomain: "lphonk.firebaseapp.com",   // important: use firebaseapp.com
       projectId: "lphonk",
-      storageBucket: "lphonk.firebasestorage.app",
+      storageBucket: "lphonk.appspot.com",    // corrected bucket domain
       messagingSenderId: "193256977034",
       appId: "1:193256977034:web:38fd99c1da8e8f37507373",
       measurementId: "G-5QMHMLDHBW"
@@ -44,25 +45,24 @@
     const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
-    // Handle redirect result immediately
-    statusEl.textContent = "Redirected back to site… checking login result…";
+    // Ensure persistence so session survives redirect
+    setPersistence(auth, browserLocalPersistence).then(() => {
+      // Handle redirect result immediately
+      getRedirectResult(auth)
+        .then((result) => {
+          if (result && result.user) {
+            statusEl.textContent = "✅ Login successful! Redirecting to dashboard…";
+            setTimeout(() => {
+              window.location.href = "/dashboard/";
+            }, 1500);
+          }
+        })
+        .catch((err) => {
+          statusEl.textContent = "❌ Login error: " + err.message;
+        });
+    });
 
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result && result.user) {
-          statusEl.textContent = "✅ Login successful! Redirecting to dashboard…";
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 1500);
-        } else {
-          statusEl.textContent = "⚠️ No login result found. Try again.";
-        }
-      })
-      .catch((err) => {
-        statusEl.textContent = "❌ Login error: " + err.message;
-      });
-
-    // Always use redirect on mobile
+    // Button triggers redirect to Google
     loginBtn.addEventListener("click", () => {
       statusEl.textContent = "⏳ Redirecting to Google login…";
       signInWithRedirect(auth, provider);
