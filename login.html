@@ -5,49 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lphonk – Login</title>
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: black;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-    .login-box {
-      text-align: center;
-      padding: 40px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-    .google-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 260px;
-      margin: auto;
-      padding: 12px;
-      border-radius: 50px;
-      background: white;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 16px;
-      border: none;
-    }
-    .google-btn img {
-      width: 24px;
-      height: 24px;
-    }
-    #loading {
-      display: none;
-      margin-top: 20px;
-      font-size: 16px;
-      color: #ccc;
-    }
+    body { margin:0; height:100vh; display:flex; justify-content:center; align-items:center; background:black; font-family:Arial,sans-serif; color:white; }
+    .login-box { text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:20px; box-shadow:0 0 20px rgba(0,0,0,0.4); }
+    .google-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:260px; margin:auto; padding:12px; border-radius:50px; background:white; color:black; font-weight:bold; cursor:pointer; font-size:16px; border:none; }
+    .google-btn img { width:24px; height:24px; }
+    #status { margin-top:20px; font-size:16px; color:#ccc; }
   </style>
 </head>
 <body>
@@ -57,19 +19,13 @@
       <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" alt="Google">
       Continue with Google
     </button>
-    <p id="loading">⏳ Loading, please wait...</p>
+    <p id="status"></p>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { 
-      getAuth, 
-      GoogleAuthProvider, 
-      signInWithPopup, 
-      signInWithRedirect, 
-      getRedirectResult
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } 
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
@@ -85,46 +41,31 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    const loadingEl = document.getElementById("loading");
+    const statusEl = document.getElementById("status");
     const loginBtn = document.getElementById("googleLogin");
 
     // 🔥 Handle redirect result when coming back from Google
+    statusEl.textContent = "Redirected back to site… checking login result…";
+
     getRedirectResult(auth)
       .then((result) => {
         if (result && result.user) {
-          loadingEl.style.display = "block";
-          loadingEl.textContent = "✅ Login successful! Redirecting...";
+          statusEl.textContent = "✅ Login successful! Redirecting to dashboard…";
           setTimeout(() => {
             window.location.href = "dashboard.html";
-          }, 1000);
+          }, 1500);
+        } else {
+          statusEl.textContent = "No login result found. Please try again.";
         }
       })
       .catch((err) => {
-        console.error("Redirect error:", err);
-        alert("Login error: " + err.message);
+        statusEl.textContent = "❌ Login error: " + err.message;
       });
 
-    // Detect if mobile
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
+    // Always use redirect on mobile
     loginBtn.addEventListener("click", () => {
-      loadingEl.style.display = "block";
-      loadingEl.textContent = "⏳ Connecting to Google...";
-      if (isMobile) {
-        signInWithRedirect(auth, provider);
-      } else {
-        signInWithPopup(auth, provider)
-          .then((result) => {
-            loadingEl.textContent = "✅ Login successful! Redirecting...";
-            setTimeout(() => {
-              window.location.href = "dashboard.html";
-            }, 1000);
-          })
-          .catch((err) => {
-            loadingEl.style.display = "none";
-            alert("Login error: " + err.message);
-          });
-      }
+      statusEl.textContent = "⏳ Redirecting to Google login…";
+      signInWithRedirect(auth, provider);
     });
   </script>
 </body>
