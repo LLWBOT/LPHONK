@@ -4,74 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LPHONK Vocal Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif; }
-    body { background:#000; color:#fff; overflow-x:hidden; }
-    a { text-decoration:none; color:inherit; cursor:pointer; }
-
-    /* Hero Section */
-    header { height:100vh; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; overflow:hidden; padding:2rem;}
-    header h1 { font-size:4rem; color:#ffeb3b; text-shadow:0 0 20px #ffeb3b; animation:slideDown 1s ease-out forwards;}
-    header p { font-size:1.5rem; max-width:800px; margin:1rem 0 2rem 0; animation:fadeIn 2s ease-out forwards;}
-    .cta-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
-    .cta-btn { background:#ffeb3b; color:#000; border:none; padding:1rem 2rem; font-size:1.2rem; border-radius:12px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; }
-    .cta-btn:hover { transform:scale(1.1); box-shadow:0 0 20px #ffeb3b; }
-    .hero-description { color:#ffeb3b; max-width:700px; margin-top:1rem; font-size:1.2rem; }
-
-    @keyframes slideDown {0%{transform:translateY(-100px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
-    @keyframes fadeIn {0%{opacity:0;}100%{opacity:1;}}
-
-    /* Auth Forms */
-    .auth-container { display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; }
-    .auth-container.active { display:flex; }
-    .auth-container h2 { color:#ffeb3b; margin-bottom:1rem; }
-    .auth-container input { padding:1rem; margin:0.5rem 0; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; width:250px; }
-    .auth-container button { padding:1rem 2rem; margin-top:1rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s; }
-    .auth-container button:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
-    .auth-switch { margin-top:1rem; color:#ffeb3b; cursor:pointer; }
-    .auth-switch:hover { color:#fff; }
-
-    /* Dashboard */
-    .dashboard { display:none; flex-direction:column; align-items:center; padding:2rem; }
-    .dashboard.active { display:flex; }
-    .dashboard-header { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
-    .dashboard-header h2 { color:#ffeb3b; }
-    .dashboard-header .coins { font-size:1.2rem; color:#ffeb3b; }
-    .dashboard-header button { padding:0.5rem 1rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; }
-
-    .upload-section { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-bottom:2rem; }
-    input[type="file"] { padding:1rem; border-radius:12px; border:2px dashed #ffeb3b; background:transparent; color:#ffeb3b; cursor:pointer; transition:0.3s; }
-    input[type="file"]:hover { background:#222; }
-    select { padding:0.8rem 1.2rem; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; font-size:1rem; cursor:pointer; }
-    .generate-btn { padding:1rem 2rem; font-size:1.2rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s; }
-    .generate-btn:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
-
-    .audio-preview { margin-top:2rem; }
-    #waveform { margin-top:2rem; border-radius:12px; background:#111; width:100%; max-width:800px; height:150px; }
-
-    /* Footer */
-    footer { background:#000; color:#ffeb3b; text-align:center; padding:2rem 1rem; border-top:2px solid #ffeb3b; }
-    footer a { margin:0 1rem; color:#ffeb3b; transition: color 0.3s; }
-    footer a:hover { color:#fff; }
-
-    /* Modals */
-    .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:1000; }
-    .modal-content { background:#111; padding:2rem; border-radius:12px; max-width:600px; color:#ffeb3b; text-align:left; position:relative; animation: slideUp 0.5s ease-out forwards; }
-    .modal-content h2 { margin-bottom:1rem; }
-    .close-btn { position:absolute; top:1rem; right:1rem; font-size:1.5rem; cursor:pointer; color:#ffeb3b; }
-    @keyframes slideUp { 0%{transform: translateY(100px); opacity:0;} 100%{transform: translateY(0); opacity:1;} }
-</style>
 </head>
 <body>
 
-<!-- Hero Section -->
+<!-- Hero / Landing -->
 <header>
     <h1>LPHONK Vocal Generator</h1>
-    <p class="hero-description">LPHONK lets you instantly generate Brazilian Funk vocals synced to your beats. Upload your tracks, choose a style, and create viral vocals without limits—all for free!</p>
+    <p class="hero-description">
+        LPHONK lets you instantly generate Brazilian Funk vocals synced to your beats. Upload your tracks, choose a style, and create viral vocals without limits—all for free!
+    </p>
     <div class="cta-buttons">
         <button class="cta-btn" onclick="showAuth('login')">Login</button>
         <button class="cta-btn" onclick="showAuth('signup')">Sign Up</button>
@@ -94,13 +39,24 @@
     <input type="password" id="signupPassword" placeholder="Password">
     <button onclick="signup()">Sign Up</button>
     <p class="auth-switch" onclick="showAuth('login')">Already have an account? Login</p>
+
+    <div id="verificationMessage">
+        <div>✔️</div>
+        <h3>Account Created Successfully!</h3>
+        <p>We have sent a verification email to <span id="userEmailDisplay"></span>. Look in your inbox, and if it’s not there, check your spam folder.</p>
+        <p>Still not found? <button id="resendBtn" onclick="resendVerification()">Resend Email</button></p>
+    </div>
 </div>
 
 <!-- Dashboard -->
 <div class="dashboard" id="dashboard">
     <div class="dashboard-header">
         <h2>Welcome to LPHONK</h2>
-        <div class="coins">Coins: <span id="coinCount">0</span></div>
+        <div class="coins" onclick="toggleCoinsPopup()">
+            <img src="assets/coin.png" alt="coin">
+            <span id="coinCount">0</span>
+            <button>+</button>
+        </div>
         <button onclick="logout()">Logout</button>
     </div>
     <div class="upload-section">
@@ -114,12 +70,26 @@
                 <option value="random">Random Viral Style</option>
             </select>
         </label>
-        <button class="generate-btn" onclick="startGeneration()">Generate Vocals</button>
+        <button class="generate-btn" onclick="startGeneration()">
+            <img src="assets/coin.png" alt="coin"> 5
+        </button>
     </div>
     <div class="audio-preview">
         <audio controls id="audioPlayer" style="margin-top:1rem;width:100%;"></audio>
     </div>
     <canvas id="waveform"></canvas>
+</div>
+
+<!-- Coins Popup -->
+<div id="coinsPopup">
+    <h3>Get More Coins</h3>
+    <button onclick="claimYouTube()">
+        <img src="assets/youtube.png" alt="youtube"> +10 Coins
+    </button>
+    <button id="dailyBtn" onclick="claimDaily()">Daily +5 Coins</button>
+    <input type="text" id="redeemCode" placeholder="Enter code">
+    <button onclick="redeemCoins()">Redeem</button>
+    <button onclick="closeCoinsPopup()">Close</button>
 </div>
 
 <!-- Footer -->
@@ -157,116 +127,6 @@
     </div>
 </div>
 
-<script>
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-  authDomain: "lphonk.firebaseapp.com",
-  projectId: "lphonk",
-  storageBucket: "lphonk.firebasestorage.app",
-  messagingSenderId: "193256977034",
-  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
-  measurementId: "G-5QMHMLDHBW"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Show Auth Forms
-function showAuth(form){ document.getElementById('loginForm').classList.remove('active'); document.getElementById('signupForm').classList.remove('active'); if(form==='login'){document.getElementById('loginForm').classList.add('active');} else {document.getElementById('signupForm').classList.add('active');} }
-
-// Modals
-function openModal(id){ document.getElementById(id).style.display='flex'; }
-function closeModal(id){ document.getElementById(id).style.display='none'; }
-window.onclick = function(event){
-    ['aboutModal','contactModal','privacyModal'].forEach(id=>{ if(event.target==document.getElementById(id)){ document.getElementById(id).style.display='none'; }});
-}
-
-// Signup with email verification
-function signup(){
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    auth.createUserWithEmailAndPassword(email,password)
-    .then((userCredential)=>{
-        const user = userCredential.user;
-        user.sendEmailVerification();
-        alert('Verification email sent! Please check your inbox.');
-        // Initialize coins in Firestore
-        db.collection('users').doc(user.uid).set({coins:20,lastGeneration:null});
-    })
-    .catch(err=>alert(err.message));
-}
-
-// Login with verification check
-function login(){
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    auth.signInWithEmailAndPassword(email,password)
-    .then((userCredential)=>{
-        const user = userCredential.user;
-        if(!user.emailVerified){
-            alert('Please verify your email before logging in.');
-            auth.signOut();
-        } else {
-            showDashboard(user.uid);
-        }
-    })
-    .catch(err=>alert(err.message));
-}
-
-// Logout
-function logout(){ auth.signOut(); document.getElementById('dashboard').classList.remove('active'); showAuth('login'); }
-
-// Show Dashboard
-function showDashboard(uid){
-    document.getElementById('loginForm').classList.remove('active');
-    document.getElementById('signupForm').classList.remove('active');
-    document.getElementById('dashboard').classList.add('active');
-    // Listen for coin updates
-    db.collection('users').doc(uid).onSnapshot(doc=>{
-        document.getElementById('coinCount').innerText = doc.data().coins;
-    });
-}
-
-// Waveform animation
-const canvas = document.getElementById('waveform');
-const ctx = canvas.getContext('2d');
-const bars = 60;
-const barWidth = canvas.width / bars;
-let heights = Array(bars).fill(0);
-let animationActive = false;
-function animateWaveform() {
-    if(animationActive){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        for(let i=0;i<bars;i++){
-            heights[i] += (Math.random()*50 - heights[i]*0.5);
-            if(heights[i]<0) heights[i]=0;
-            ctx.fillStyle = '#ffeb3b';
-            ctx.fillRect(i*barWidth, canvas.height-heights[i], barWidth*0.7, heights[i]);
-        }
-    }
-    requestAnimationFrame(animateWaveform);
-}
-animateWaveform();
-
-// Simulate generation process
-function startGeneration(){
-    const user = auth.currentUser;
-    if(!user){ alert('Please login first.'); return; }
-    const userRef = db.collection('users').doc(user.uid);
-    userRef.get().then(doc=>{
-        if(doc.data().coins>=1){
-            userRef.update({coins:doc.data().coins-1});
-            animationActive = true;
-            alert('AI vocal generation started! This is a placeholder.');
-            setTimeout(()=>{
-                animationActive = false;
-                alert('Vocal generation complete! Audio ready for preview.');
-            },5000);
-        } else { alert('Not enough coins to generate vocals.'); }
-    });
-}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
