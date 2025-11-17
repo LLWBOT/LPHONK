@@ -14,12 +14,14 @@
     a { text-decoration:none; color:inherit; cursor:pointer; }
 
     /* Hero Section */
-    header { height:100vh; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; overflow:hidden;}
+    header { height:100vh; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; overflow:hidden; padding:2rem;}
     header h1 { font-size:4rem; color:#ffeb3b; text-shadow:0 0 20px #ffeb3b; animation:slideDown 1s ease-out forwards;}
     header p { font-size:1.5rem; max-width:800px; margin:1rem 0 2rem 0; animation:fadeIn 2s ease-out forwards;}
-    .cta-buttons { display:flex; gap:1rem; flex-wrap:wrap; }
+    .cta-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
     .cta-btn { background:#ffeb3b; color:#000; border:none; padding:1rem 2rem; font-size:1.2rem; border-radius:12px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; }
     .cta-btn:hover { transform:scale(1.1); box-shadow:0 0 20px #ffeb3b; }
+    .hero-description { color:#ffeb3b; max-width:700px; margin-top:1rem; font-size:1.2rem; }
+
     @keyframes slideDown {0%{transform:translateY(-100px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
     @keyframes fadeIn {0%{opacity:0;}100%{opacity:1;}}
 
@@ -69,7 +71,7 @@
 <!-- Hero Section -->
 <header>
     <h1>LPHONK Vocal Generator</h1>
-    <p>Upload your beats and generate viral Brazilian Funk vocals instantly. Use your favorite styles or clone tracks like Montagem Rugada!</p>
+    <p class="hero-description">LPHONK lets you instantly generate Brazilian Funk vocals synced to your beats. Upload your tracks, choose a style, and create viral vocals without limits—all for free!</p>
     <div class="cta-buttons">
         <button class="cta-btn" onclick="showAuth('login')">Login</button>
         <button class="cta-btn" onclick="showAuth('signup')">Sign Up</button>
@@ -156,11 +158,15 @@
 </div>
 
 <script>
-// Firebase config placeholder (replace with your own)
+// Firebase Config
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
+  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+  authDomain: "lphonk.firebaseapp.com",
+  projectId: "lphonk",
+  storageBucket: "lphonk.firebasestorage.app",
+  messagingSenderId: "193256977034",
+  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+  measurementId: "G-5QMHMLDHBW"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
