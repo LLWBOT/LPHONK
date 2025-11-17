@@ -3,271 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LPHONK - Montagem & Funk Platform</title>
-
+<title>LPHONK Vocal Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-    html {
-        scroll-behavior: smooth; /* Smooth scroll for anchors */
-    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif; }
+    body { background:#000; color:#fff; overflow-x:hidden; }
+    a { text-decoration:none; color:inherit; cursor:pointer; }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(#0a0a1a, #001a33);
-        color: white;
-    }
+    /* Hero Section */
+    header { height:100vh; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; overflow:hidden;}
+    header h1 { font-size:4rem; color:#ffeb3b; text-shadow:0 0 20px #ffeb3b; animation:slideDown 1s ease-out forwards;}
+    header p { font-size:1.5rem; max-width:800px; margin:1rem 0 2rem 0; animation:fadeIn 2s ease-out forwards;}
+    .cta-buttons { display:flex; gap:1rem; flex-wrap:wrap; }
+    .cta-btn { background:#ffeb3b; color:#000; border:none; padding:1rem 2rem; font-size:1.2rem; border-radius:12px; cursor:pointer; transition:transform 0.3s, box-shadow 0.3s; }
+    .cta-btn:hover { transform:scale(1.1); box-shadow:0 0 20px #ffeb3b; }
+    @keyframes slideDown {0%{transform:translateY(-100px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+    @keyframes fadeIn {0%{opacity:0;}100%{opacity:1;}}
 
-    /* NAVBAR */
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 40px;
-        border-bottom: 2px solid #00d4ff;
-    }
+    /* Auth Forms */
+    .auth-container { display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; }
+    .auth-container.active { display:flex; }
+    .auth-container h2 { color:#ffeb3b; margin-bottom:1rem; }
+    .auth-container input { padding:1rem; margin:0.5rem 0; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; width:250px; }
+    .auth-container button { padding:1rem 2rem; margin-top:1rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s; }
+    .auth-container button:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
+    .auth-switch { margin-top:1rem; color:#ffeb3b; cursor:pointer; }
+    .auth-switch:hover { color:#fff; }
 
-    .logo {
-        font-size: 40px;
-        font-weight: 900;
-        color: #00d4ff;
-        letter-spacing: 5px;
-    }
+    /* Dashboard */
+    .dashboard { display:none; flex-direction:column; align-items:center; padding:2rem; }
+    .dashboard.active { display:flex; }
+    .dashboard-header { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+    .dashboard-header h2 { color:#ffeb3b; }
+    .dashboard-header .coins { font-size:1.2rem; color:#ffeb3b; }
+    .dashboard-header button { padding:0.5rem 1rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; }
 
-    .btn {
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: 0.3s;
-    }
+    .upload-section { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-bottom:2rem; }
+    input[type="file"] { padding:1rem; border-radius:12px; border:2px dashed #ffeb3b; background:transparent; color:#ffeb3b; cursor:pointer; transition:0.3s; }
+    input[type="file"]:hover { background:#222; }
+    select { padding:0.8rem 1.2rem; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; font-size:1rem; cursor:pointer; }
+    .generate-btn { padding:1rem 2rem; font-size:1.2rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s; }
+    .generate-btn:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
 
-    .btn-outline {
-        border: 2px solid #00d4ff;
-        color: white;
-    }
+    .audio-preview { margin-top:2rem; }
+    #waveform { margin-top:2rem; border-radius:12px; background:#111; width:100%; max-width:800px; height:150px; }
 
-    .btn-outline:hover {
-        background: #00d4ff;
-        color: black;
-    }
+    /* Footer */
+    footer { background:#000; color:#ffeb3b; text-align:center; padding:2rem 1rem; border-top:2px solid #ffeb3b; }
+    footer a { margin:0 1rem; color:#ffeb3b; transition: color 0.3s; }
+    footer a:hover { color:#fff; }
 
-    .btn-fill {
-        background: #00d4ff;
-        color: black;
-    }
-
-    .btn-fill:hover {
-        background: #00b8e6;
-    }
-
-    /* HERO */
-    .hero {
-        text-align: center;
-        padding: 80px 20px;
-    }
-
-    .hero h1 {
-        font-size: 50px;
-        font-weight: bold;
-    }
-
-    .hero p {
-        font-size: 20px;
-        margin-top: 10px;
-    }
-
-    .hero-buttons a {
-        margin: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* COVER GRID */
-    .covers {
-        padding: 40px;
-    }
-
-    .covers h2 {
-        text-align: center;
-        font-size: 32px;
-        margin-bottom: 30px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
-
-    .cover-card {
-        background: #001a33;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: 0.3s;
-    }
-
-    .cover-card:hover {
-        transform: scale(1.05);
-    }
-
-    .cover-card img {
-        width: 100%;
-    }
-
-    .cover-info {
-        padding: 10px;
-        text-align: center;
-    }
-
-    /* ABOUT */
-    .about {
-        background: #001a44;
-        padding: 50px;
-        text-align: center;
-    }
-
-    .about-icons {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        margin-top: 20px;
-    }
-
-    /* FAQ */
-    .faq {
-        padding: 40px;
-    }
-
-    .faq h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .faq-box {
-        background: #001a33;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-    }
-
-    /* TIP SECTION */
-    .tip {
-        background: #001a44;
-        padding: 40px;
-        text-align: center;
-    }
-
-    /* FOOTER */
-    footer {
-        background: #001122;
-        padding: 20px;
-        text-align: center;
-        color: #8bbcd4;
-        margin-top: 20px;
-    }
+    /* Modals */
+    .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:1000; }
+    .modal-content { background:#111; padding:2rem; border-radius:12px; max-width:600px; color:#ffeb3b; text-align:left; position:relative; animation: slideUp 0.5s ease-out forwards; }
+    .modal-content h2 { margin-bottom:1rem; }
+    .close-btn { position:absolute; top:1rem; right:1rem; font-size:1.5rem; cursor:pointer; color:#ffeb3b; }
+    @keyframes slideUp { 0%{transform: translateY(100px); opacity:0;} 100%{transform: translateY(0); opacity:1;} }
 </style>
-
 </head>
 <body>
 
+<!-- Hero Section -->
 <header>
-    <div class="logo">LPHONK</div>
-    <div>
-        <a href="login.html" class="btn btn-outline">Login</a>
+    <h1>LPHONK Vocal Generator</h1>
+    <p>Upload your beats and generate viral Brazilian Funk vocals instantly. Use your favorite styles or clone tracks like Montagem Rugada!</p>
+    <div class="cta-buttons">
+        <button class="cta-btn" onclick="showAuth('login')">Login</button>
+        <button class="cta-btn" onclick="showAuth('signup')">Sign Up</button>
+        <button class="cta-btn" onclick="openModal('aboutModal')">About</button>
     </div>
 </header>
 
-<section class="hero">
-    <h1>The Ultimate Home for Montagem & Funk</h1>
-    <p>Upload, get reviewed, and share your underground tracks with real listeners.</p>
-    <br>
-    <div class="hero-buttons">
-        <a href="login.html" class="btn btn-fill">Get Started</a>
-        <a href="#covers" class="btn btn-outline">Explore</a>
-        <a href="https://youtube.com/@DJLLW1" target="_blank" class="btn btn-fill" style="display:flex; align-items:center; justify-content:center;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" 
-                 alt="YouTube Logo" style="width:24px; height:24px; margin-right:10px;">
-            Subscribe LLW on YouTube
-        </a>
+<!-- Auth Forms -->
+<div class="auth-container" id="loginForm">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p class="auth-switch" onclick="showAuth('signup')">Don't have an account? Sign Up</p>
+</div>
+
+<div class="auth-container" id="signupForm">
+    <h2>Sign Up</h2>
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+    <p class="auth-switch" onclick="showAuth('login')">Already have an account? Login</p>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+    <div class="dashboard-header">
+        <h2>Welcome to LPHONK</h2>
+        <div class="coins">Coins: <span id="coinCount">0</span></div>
+        <button onclick="logout()">Logout</button>
     </div>
-</section>
-
-<section class="covers" id="covers">
-    <h2>🔥 Trending Montagem / Funk</h2>
-    <div class="grid">
-        <div class="cover-card">
-            <img src="cover1.jpg" alt="">
-            <div class="cover-info">Montagem Tomada — DJ Kai</div>
-        </div>
-        <div class="cover-card">
-            <img src="cover2.jpg" alt="">
-            <div class="cover-info">Passo Bem Solto — DJ LXX</div>
-        </div>
-        <div class="cover-card">
-            <img src="cover3.jpg" alt="">
-            <div class="cover-info">Mortals Funk — DJ Neo</div>
-        </div>
-        <div class="cover-card">
-            <img src="cover4.jpg" alt="">
-            <div class="cover-info">Veki Veki — DJ Flex</div>
-        </div>
-        <div class="cover-card">
-            <img src="cover5.jpg" alt="">
-            <div class="cover-info">Montagem Drift — DJ Phantom</div>
-        </div>
-        <div class="cover-card">
-            <img src="cover6.jpg" alt="">
-            <div class="cover-info">Funk Remix — DJ Blaze</div>
-        </div>
+    <div class="upload-section">
+        <label>Upload Beat (Instrumental)<input type="file" id="beatUpload" accept=".mp3,.wav"></label>
+        <label>Upload Reference Vocal (Optional)<input type="file" id="refUpload" accept=".mp3,.wav"></label>
+        <label>Select Vocal Style
+            <select id="vocalStyle">
+                <option value="montagem_rugada">Montagem Rugada</option>
+                <option value="montagem_xonada">Montagem Xonada</option>
+                <option value="veki_veki">Veki Veki</option>
+                <option value="random">Random Viral Style</option>
+            </select>
+        </label>
+        <button class="generate-btn" onclick="startGeneration()">Generate Vocals</button>
     </div>
-</section>
-
-<section class="about">
-    <h2>Why LPHONK?</h2>
-    <p>LPHONK is built for montage and funk creators. Every upload is reviewed to keep the community real and safe.</p>
-    <div class="about-icons">
-        <div>🎵 Upload & Share</div>
-        <div>✅ Reviewed for Quality</div>
-        <div>🎧 Stream Underground Funk</div>
-        <div>💬 Get Feedback</div>
+    <div class="audio-preview">
+        <audio controls id="audioPlayer" style="margin-top:1rem;width:100%;"></audio>
     </div>
-</section>
+    <canvas id="waveform"></canvas>
+</div>
 
-<section class="faq">
-    <h2>Frequently Asked Questions</h2>
-
-    <div class="faq-box">
-        <b>Q: Who can upload tracks?</b><br>
-        A: Anyone with an account — but uploads must pass admin review.
-    </div>
-
-    <div class="faq-box">
-        <b>Q: How long does review take?</b><br>
-        A: Usually 24–48 hours.
-    </div>
-
-    <div class="faq-box">
-        <b>Q: Can I listen without uploading?</b><br>
-        A: Yes! Anyone can explore the tracks.
-    </div>
-
-    <div class="faq-box">
-        <b>Q: Can friends help approve tracks?</b><br>
-        A: Yes, chosen admins can approve/reject uploads.
-    </div>
-</section>
-
-<section class="tip">
-    <h2>Tip of the Day</h2>
-    <p>🎵 Add subtle vinyl crackle for a classic underground montagem vibe.</p>
-    <br>
-    <a href="#" class="btn btn-fill">Random Funk Track</a>
-</section>
-
+<!-- Footer -->
 <footer>
-    © 2025 LPHONK. All rights reserved.
+    <p>&copy; 2025 LPHONK. All rights reserved.</p>
+    <div>
+        <a onclick="openModal('aboutModal')">About</a>
+        <a onclick="openModal('contactModal')">Contact</a>
+        <a onclick="openModal('privacyModal')">Privacy</a>
+    </div>
 </footer>
 
+<!-- Modals -->
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('aboutModal')">&times;</span>
+        <h2>About LPHONK</h2>
+        <p>LPHONK is a free AI platform for generating Brazilian Funk vocals synced to your beats. Upload your beats, optionally provide a reference track, and create viral Funk tracks instantly!</p>
+    </div>
+</div>
+
+<div id="contactModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('contactModal')">&times;</span>
+        <h2>Contact Us</h2>
+        <p>Email us at <strong>contact@lphonk.com</strong> for suggestions or support.</p>
+    </div>
+</div>
+
+<div id="privacyModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
+        <h2>Privacy Policy</h2>
+        <p>We respect your privacy. Files uploaded are only processed to generate vocals and are not stored on our servers.</p>
+    </div>
+</div>
+
+<script>
+// Firebase config placeholder (replace with your own)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Show Auth Forms
+function showAuth(form){ document.getElementById('loginForm').classList.remove('active'); document.getElementById('signupForm').classList.remove('active'); if(form==='login'){document.getElementById('loginForm').classList.add('active');} else {document.getElementById('signupForm').classList.add('active');} }
+
+// Modals
+function openModal(id){ document.getElementById(id).style.display='flex'; }
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+window.onclick = function(event){
+    ['aboutModal','contactModal','privacyModal'].forEach(id=>{ if(event.target==document.getElementById(id)){ document.getElementById(id).style.display='none'; }});
+}
+
+// Signup with email verification
+function signup(){
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    auth.createUserWithEmailAndPassword(email,password)
+    .then((userCredential)=>{
+        const user = userCredential.user;
+        user.sendEmailVerification();
+        alert('Verification email sent! Please check your inbox.');
+        // Initialize coins in Firestore
+        db.collection('users').doc(user.uid).set({coins:20,lastGeneration:null});
+    })
+    .catch(err=>alert(err.message));
+}
+
+// Login with verification check
+function login(){
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    auth.signInWithEmailAndPassword(email,password)
+    .then((userCredential)=>{
+        const user = userCredential.user;
+        if(!user.emailVerified){
+            alert('Please verify your email before logging in.');
+            auth.signOut();
+        } else {
+            showDashboard(user.uid);
+        }
+    })
+    .catch(err=>alert(err.message));
+}
+
+// Logout
+function logout(){ auth.signOut(); document.getElementById('dashboard').classList.remove('active'); showAuth('login'); }
+
+// Show Dashboard
+function showDashboard(uid){
+    document.getElementById('loginForm').classList.remove('active');
+    document.getElementById('signupForm').classList.remove('active');
+    document.getElementById('dashboard').classList.add('active');
+    // Listen for coin updates
+    db.collection('users').doc(uid).onSnapshot(doc=>{
+        document.getElementById('coinCount').innerText = doc.data().coins;
+    });
+}
+
+// Waveform animation
+const canvas = document.getElementById('waveform');
+const ctx = canvas.getContext('2d');
+const bars = 60;
+const barWidth = canvas.width / bars;
+let heights = Array(bars).fill(0);
+let animationActive = false;
+function animateWaveform() {
+    if(animationActive){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(let i=0;i<bars;i++){
+            heights[i] += (Math.random()*50 - heights[i]*0.5);
+            if(heights[i]<0) heights[i]=0;
+            ctx.fillStyle = '#ffeb3b';
+            ctx.fillRect(i*barWidth, canvas.height-heights[i], barWidth*0.7, heights[i]);
+        }
+    }
+    requestAnimationFrame(animateWaveform);
+}
+animateWaveform();
+
+// Simulate generation process
+function startGeneration(){
+    const user = auth.currentUser;
+    if(!user){ alert('Please login first.'); return; }
+    const userRef = db.collection('users').doc(user.uid);
+    userRef.get().then(doc=>{
+        if(doc.data().coins>=1){
+            userRef.update({coins:doc.data().coins-1});
+            animationActive = true;
+            alert('AI vocal generation started! This is a placeholder.');
+            setTimeout(()=>{
+                animationActive = false;
+                alert('Vocal generation complete! Audio ready for preview.');
+            },5000);
+        } else { alert('Not enough coins to generate vocals.'); }
+    });
+}
+</script>
+
 </body>
-    </html>
+</html>
