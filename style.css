@@ -1,0 +1,98 @@
+/* General */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto', sans-serif; }
+body { background:#000; color:#fff; overflow-x:hidden; }
+a { text-decoration:none; color:inherit; cursor:pointer; }
+
+/* Hero Section */
+header { 
+    height:100vh; 
+    background:#111; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+    text-align:center; 
+    padding:2rem;
+}
+header h1 { 
+    font-size:4rem; 
+    color:#ffeb3b; 
+    text-shadow:0 0 20px #ffeb3b; 
+    animation:slideDown 1s ease-out forwards;
+}
+.hero-description { 
+    font-size:1.5rem; 
+    max-width:800px; 
+    margin:1rem 0 2rem 0; 
+    animation:fadeIn 2s ease-out forwards; 
+    color:#ffeb3b; 
+}
+.cta-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:1rem; }
+.cta-btn { 
+    background:#ffeb3b; 
+    color:#000; 
+    border:none; 
+    padding:1rem 2rem; 
+    font-size:1.2rem; 
+    border-radius:12px; 
+    cursor:pointer; 
+    transition:transform 0.3s, box-shadow 0.3s; 
+}
+.cta-btn:hover { transform:scale(1.1); box-shadow:0 0 20px #ffeb3b; }
+
+@keyframes slideDown {0%{transform:translateY(-100px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+@keyframes fadeIn {0%{opacity:0;}100%{opacity:1;}}
+
+/* Auth Forms */
+.auth-container { display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; }
+.auth-container.active { display:flex; }
+.auth-container h2 { color:#ffeb3b; margin-bottom:1rem; }
+.auth-container input { padding:1rem; margin:0.5rem 0; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; width:250px; }
+.auth-container button { padding:1rem 2rem; margin-top:1rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s; }
+.auth-container button:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
+.auth-switch { margin-top:1rem; color:#ffeb3b; cursor:pointer; }
+.auth-switch:hover { color:#fff; }
+
+/* Verification message */
+#verificationMessage { display:none; text-align:center; margin-top:2rem; }
+#verificationMessage div { font-size:3rem; color:#ffeb3b; }
+#verificationMessage h3 { color:#ffeb3b; margin:1rem 0; }
+#verificationMessage p { color:#ffeb3b; margin:0.5rem 0; }
+#resendBtn { padding:0.5rem 1rem; border:none; border-radius:8px; background:#ffeb3b; color:#000; cursor:pointer; }
+
+/* Dashboard */
+.dashboard { display:none; flex-direction:column; align-items:center; padding:2rem; }
+.dashboard.active { display:flex; }
+.dashboard-header { width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+.dashboard-header h2 { color:#ffeb3b; }
+.dashboard-header .coins { font-size:1.2rem; color:#ffeb3b; display:flex; align-items:center; gap:0.3rem; cursor:pointer; }
+.dashboard-header .coins img { width:24px; height:24px; }
+.dashboard-header .coins button { background:#ffeb3b; color:#000; border:none; padding:0.2rem 0.5rem; border-radius:8px; cursor:pointer; }
+
+.upload-section { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-bottom:2rem; }
+input[type="file"] { padding:1rem; border-radius:12px; border:2px dashed #ffeb3b; background:transparent; color:#ffeb3b; cursor:pointer; transition:0.3s; }
+input[type="file"]:hover { background:#222; }
+select { padding:0.8rem 1.2rem; border-radius:12px; border:2px solid #ffeb3b; background:transparent; color:#ffeb3b; font-size:1rem; cursor:pointer; }
+.generate-btn { padding:1rem 2rem; font-size:1.2rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition: transform 0.3s, box-shadow 0.3s; }
+.generate-btn img { width:20px; height:20px; }
+.generate-btn:hover { transform:scale(1.05); box-shadow:0 0 20px #ffeb3b; }
+
+.audio-preview { margin-top:2rem; }
+#waveform { margin-top:2rem; border-radius:12px; background:#111; width:100%; max-width:800px; height:150px; }
+
+/* Footer */
+footer { background:#000; color:#ffeb3b; text-align:center; padding:2rem 1rem; border-top:2px solid #ffeb3b; }
+footer a { margin:0 1rem; color:#ffeb3b; transition: color 0.3s; }
+footer a:hover { color:#fff; }
+
+/* Modals */
+.modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:1000; }
+.modal-content { background:#111; padding:2rem; border-radius:12px; max-width:600px; color:#ffeb3b; text-align:left; position:relative; animation: slideUp 0.5s ease-out forwards; }
+.modal-content h2 { margin-bottom:1rem; }
+.close-btn { position:absolute; top:1rem; right:1rem; font-size:1.5rem; cursor:pointer; color:#ffeb3b; }
+@keyframes slideUp { 0%{transform: translateY(100px); opacity:0;} 100%{transform: translateY(0); opacity:1;} }
+
+/* Coins popup */
+#coinsPopup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#111; padding:2rem; border-radius:12px; z-index:1001; width:90%; max-width:400px; text-align:center; }
+#coinsPopup button { margin-top:1rem; padding:0.8rem 1.2rem; border:none; border-radius:12px; background:#ffeb3b; color:#000; cursor:pointer; display:flex; align-items:center; gap:0.5rem; justify-content:center; }
+#coinsPopup input { margin-top:1rem; padding:0.5rem; width:80%; border-radius:8px; border:2px solid #ffeb3b; background:#000; color:#ffeb3b; }
