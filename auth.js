@@ -1,120 +1,157 @@
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
+// =======================
+//  Firebase Initialization
+// =======================
+const firebaseConfig = {
+  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+  authDomain: "lphonk.firebaseapp.com",
+  projectId: "lphonk",
+  storageBucket: "lphonk.firebasestorage.app",
+  messagingSenderId: "193256977034",
+  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+  measurementId: "G-5QMHMLDHBW"
+};
+
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Elements
-const btnLogin = document.getElementById("btn-login");
-const btnSignup = document.getElementById("btn-signup");
-const btnGuest = document.getElementById("btn-guest");
-const generatingSection = document.getElementById("generator-section");
-const heroButtons = document.getElementById("hero-buttons");
-const statusText = document.getElementById("status-text");
+// =======================
+// UI ELEMENTS
+// =======================
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-// -------------------------------
-// CREATE ACCOUNT
-// -------------------------------
-async function registerUser(email, password) {
-    try {
-        const userCred = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCred.user;
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
 
-        // Send verification
-        await user.sendEmailVerification();
+const authPopup = document.getElementById("authPopup");
+const authPopupMessage = document.getElementById("authPopupMessage");
+const closeAuthPopup = document.getElementById("closeAuthPopup");
 
-        // Create coins in Firestore
-        await db.collection("users").doc(user.uid).set({
-            coins: 15,
-            verified: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+const mainButtons = document.getElementById("mainButtons");
+const coinContainer = document.getElementById("coinContainer");
+const coinAmountElement = document.getElementById("coinAmount");
 
-        statusText.innerHTML = `
-            <div class="success-box">
-                We have sent a verification email to <b>${email}</b><br>
-                Check your inbox, or Spam folder.<br><br>
-                <button onclick="resendVerification()">Resend Email</button>
-            </div>
-        `;
-
-    } catch (err) {
-        alert(err.message);
-    }
+// =======================
+// SHOW POPUP MESSAGE
+// =======================
+function showPopup(msg) {
+  authPopupMessage.innerHTML = msg;
+  authPopup.style.display = "flex";
 }
 
-// -------------------------------
-// RESEND EMAIL
-// -------------------------------
-async function resendVerification() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    await user.sendEmailVerification();
-    alert("Verification email sent again!");
-}
-
-// -------------------------------
-// LOGIN FUNCTION
-// -------------------------------
-async function loginUser(email, password) {
-    try {
-        const userCred = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCred.user;
-
-        if (!user.emailVerified) {
-            statusText.innerHTML = `
-                <div class="warning-box">
-                    Your email is not verified.<br>
-                    Please verify first.<br><br>
-                    <button onclick="resendVerification()">Resend Email</button>
-                </div>
-            `;
-            return;
-        }
-
-        statusText.innerHTML = "";
-        showLoggedInUI();
-        
-    } catch (err) {
-        alert(err.message);
-    }
-}
-
-// -------------------------------
-// AUTO LOGIN + VERIFICATION LISTENER
-// -------------------------------
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        await user.reload(); // refresh verification status
-
-        if (user.emailVerified) {
-            // Update Firestore verified field
-            db.collection("users").doc(user.uid).update({
-                verified: true
-            });
-
-            showLoggedInUI();
-        }
-    }
+closeAuthPopup.addEventListener("click", () => {
+  authPopup.style.display = "none";
 });
 
-// -------------------------------
-// SHOW LOGGED-IN UI
-// -------------------------------
-function showLoggedInUI() {
-    // Hide the 3 big buttons
-    if (heroButtons) heroButtons.style.display = "none";
+// =======================
+// COIN SYSTEM
+// =======================
+async function giveNewUserCoins(uid) {
+  const ref = db.collection("users").doc(uid);
 
-    // Show generator section
-    if (generatingSection) {
-        generatingSection.style.display = "block";
-        generatingSection.classList.add("fade-in");
+  const docSnap = await ref.get();
+  if (!docSnap.exists) {
+    await ref.set({
+      coins: 15,
+      dailyClaim: null,
+      youtubeClaimed: false
+    });
+  }
+}
+
+async function loadCoins(uid) {
+  const ref = db.collection("users").doc(uid);
+  const snap = await ref.get();
+  if (snap.exists) {
+    coinAmountElement.innerText = snap.data().coins;
+  }
+}
+
+// =======================
+// REGISTER USER
+// =======================
+registerBtn.addEventListener("click", async () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    await user.sendEmailVerification();
+
+    showPopup(`
+      A verification email has been sent to <b>${email}</b>.<br><br>
+      Please check your inbox. If it's not there, check spam.<br><br>
+      Still not found? <span id="resendEmail" style="color:#4af;">Resend Email</span>
+    `);
+
+    document.getElementById("resendEmail").onclick = () => {
+      user.sendEmailVerification();
+      showPopup("Verification email resent!");
+    };
+
+    await giveNewUserCoins(user.uid);
+  } catch (err) {
+    showPopup(err.message);
+  }
+});
+
+// =======================
+// LOGIN USER
+// =======================
+loginBtn.addEventListener("click", async () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    const user = result.user;
+
+    await user.reload();
+
+    if (!user.emailVerified) {
+      showPopup("Your email is not verified. Please verify before logging in.");
+      auth.signOut();
+      return;
     }
 
-    // Show verification badge
-    statusText.innerHTML = `
-        <div class="verified-badge">
-            ✔ Verified Account
-        </div>
-    `;
-}
+    showPopup("Login successful!");
+
+  } catch (err) {
+    showPopup(err.message);
+  }
+});
+
+// =======================
+// LOGOUT
+// =======================
+logoutBtn.addEventListener("click", () => {
+  auth.signOut();
+});
+
+// =======================
+// AUTH STATE LISTENER
+// =======================
+auth.onAuthStateChanged(async (user) => {
+  if (user && user.emailVerified) {
+    // Logged in & verified
+    mainButtons.style.display = "none";             // Hide homepage buttons
+    coinContainer.style.display = "flex";           // Show coins
+    logoutBtn.style.display = "inline-block";
+
+    await loadCoins(user.uid);
+
+    document.getElementById("generatorSection").style.display = "block";
+
+  } else {
+    // Logged out
+    mainButtons.style.display = "flex";
+    coinContainer.style.display = "none";
+    logoutBtn.style.display = "none";
+
+    document.getElementById("generatorSection").style.display = "none";
+  }
+});
