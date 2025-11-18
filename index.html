@@ -1,125 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LPHONK – AI Brazilian Funk Vocal Generator</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LPHONK — Vocal Generator</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+  <!-- styles -->
+  <link rel="stylesheet" href="style.css">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
-      authDomain: "lphonk.firebaseapp.com",
-      projectId: "lphonk",
-      storageBucket: "lphonk.firebasestorage.app",
-      messagingSenderId: "193256977034",
-      appId: "1:193256977034:web:38fd99c1da8e8f37507373",
-      measurementId: "G-5QMHMLDHBW"
-    };
-    </script>
+  <!-- Firebase (compat for your current scripts) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
 
-    <!-- NAVBAR -->
-    <nav>
-        <div class="logo">LPHONK</div>
-        <div id="user-coins" style="display:none; font-weight:700;">
-            <img src="coin.png" style="width:22px; vertical-align:middle;">
-            <span id="coin-count">0</span>
-            <button id="open-coins" style="background:none; color:#facc15; font-size:20px; border:none; cursor:pointer;">+</button>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="logo">LPHONK</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <!-- coin container (hidden until login by auth.js) -->
+      <div id="coinContainer" style="display:none; align-items:center; gap:8px;">
+        <img src="assets/coin.png" alt="coin" width="22" height="22">
+        <span id="coinAmount">0</span>
+        <button id="open-coins-btn" class="ghost-btn" style="padding:6px 8px;">+</button>
+      </div>
+
+      <!-- hero auth shortcuts (nav) - will hide on login -->
+      <button id="navLoginBtn" class="ghost-btn" onclick="openAuthPopup('login')">Login</button>
+      <button id="navSignupBtn" class="ghost-btn" onclick="openAuthPopup('signup')">Sign Up</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <h1 class="title">AI vocals for your beats — instantly</h1>
+        <p class="subtitle">Upload an instrumental, pick a Brazilian Funk style or clone a reference, then generate vocals synced to your beat. Fast, free, and viral-ready.</p>
+
+        <!-- CTA buttons — wrapped in mainButtons (auth.js uses mainButtons) -->
+        <div id="mainButtons" class="hero-ctas">
+          <button class="primary-btn hero-btn" onclick="openAuthPopup('signup')">Get Started — Free</button>
+          <button class="secondary-btn hero-btn" onclick="openAuthPopup('login')">Login</button>
+          <button class="tertiary-btn hero-btn" onclick="openModal('aboutModal')">Learn More</button>
         </div>
-    </nav>
 
-    <!-- HERO SECTION -->
-    <section class="hero fade-in">
-        <h1 class="slide-up">AI Brazilian Funk Vocal Generator</h1>
-        <p class="slide-up" style="transition-delay:0.2s;">
-            Upload your beat → Get automatic Brazilian Funk vocals synced to the drop.
-        </p>
+        <!-- Dashboard area (generator will be rendered here by auth.js when verified) -->
+        <div id="generatorSection" style="margin-top:30px; display:none;"></div>
+      </div>
 
-        <!-- Floating Headphones -->
-        <img src="headphones.png" class="hero-img float pulse" alt="Headphones">
+      <!-- Hero illustration: headphones + animated waves -->
+      <div class="hero-right">
+        <div class="hero-illustration">
+          <!-- headphone SVG -->
+          <svg id="headphoneSVG" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" width="300">
+            <defs>
+              <linearGradient id="gradA" x1="0" x2="1">
+                <stop offset="0" stop-color="#8b5cf6"/>
+                <stop offset="1" stop-color="#06b6d4"/>
+              </linearGradient>
+              <filter id="gblur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="8" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
 
-        <!-- HERO BUTTONS (hidden after login) -->
-        <div id="hero-buttons" class="slide-up" style="transition-delay:0.3s;">
-            <button class="hero-btn" onclick="showLogin()">Login</button>
-            <button class="hero-btn" onclick="showSignup()">Sign Up</button>
-            <button class="hero-btn" onclick="continueGuest()">Continue as Guest</button>
+            <g transform="translate(40,40)">
+              <path d="M40 140 Q40 40 140 40 Q240 40 240 140" fill="none" stroke="url(#gradA)" stroke-width="18" stroke-linecap="round" filter="url(#gblur)"/>
+              <rect x="10" y="140" rx="18" ry="18" width="48" height="84" fill="#0b0620" stroke="url(#gradA)" stroke-width="6" />
+              <rect x="232" y="140" rx="18" ry="18" width="48" height="84" fill="#0b0620" stroke="url(#gradA)" stroke-width="6" />
+            </g>
+            <circle cx="200" cy="230" r="90" fill="transparent" stroke="url(#gradA)" stroke-width="2" opacity="0.18"/>
+          </svg>
+
+          <!-- animated waves DOM (animations.js animates these) -->
+          <div class="waves" style="position:absolute; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+            <div class="wave wave-1" style="width:78%; height:8px; background:linear-gradient(90deg,#8b5cf6,#06b6d4); border-radius:999px; margin:8px 0; opacity:0.12;"></div>
+            <div class="wave wave-2" style="width:60%; height:6px; background:linear-gradient(90deg,#8b5cf6,#06b6d4); border-radius:999px; margin:8px 0; opacity:0.14;"></div>
+            <div class="wave wave-3" style="width:44%; height:4px; background:linear-gradient(90deg,#8b5cf6,#06b6d4); border-radius:999px; margin:8px 0; opacity:0.09;"></div>
+          </div>
         </div>
+      </div>
+    </div>
+  </header>
 
-        <div id="status-text" style="margin-top:25px;"></div>
-    </section>
+  <!-- GENERATOR SECTION (fallback if render fails) -->
+  <!-- auth.js will render real generator under #generatorSection when user verified -->
+  <section id="fallback-generator" style="display:none; padding:30px; text-align:center;">
+    <div class="generate-box">
+      <h3>Generate Vocals</h3>
+      <p>Upload beat (no vocals)</p>
+      <input id="beat-upload-plain" type="file" accept=".mp3,.wav">
+      <button id="generateBtnPlain" class="generate-btn"><img src="assets/coin.png" alt="coin"> Generate (5 Coins)</button>
+    </div>
+  </section>
 
-    <!-- GENERATOR SECTION (hidden until login) -->
-    <section id="generator-section" class="fade-in">
-        <div class="generate-box">
-            <h2 style="margin-bottom:10px;">Generate Vocals</h2>
-            <p>Upload your beat (no vocals)</p>
+  <!-- COINS POPUP (P3 style) -->
+  <div id="coinsPopup" class="modal-card" style="display:none;">
+    <button class="close-x" onclick="closeCoinsPopup()">✕</button>
+    <h4 style="background:linear-gradient(90deg,#c084fc,#e9d5ff); -webkit-background-clip:text; color:transparent;">Get More Coins</h4>
 
-            <input type="file" id="beat-upload">
-            
-            <button class="generate-btn">
-                <img src="coin.png"> Generate (5 Coins)
-            </button>
-        </div>
-    </section>
+    <button id="youtubeClaimBtn" class="popup-btn"><img src="assets/youtube.png" width="20"> Subscribe — +10 coins</button>
+    <button id="dailyBtn" class="popup-btn"><img src="assets/coin.png" width="20"> Daily +5 coins</button>
 
-    <!-- COINS POPUP -->
-    <div id="coins-popup">
-        <div class="popup-title">Get More Coins</div>
-
-        <button class="popup-btn" onclick="youtubeReward()">
-            <img src="youtube.png"> Subscribe – Get 10 Coins
-        </button>
-
-        <button class="popup-btn" onclick="dailyClaim()">
-            <img src="coin.png"> Daily Free 5 Coins
-        </button>
-
-        <button class="popup-btn" onclick="redeemPopup()">
-            <img src="coin.png"> Redeem Code
-        </button>
-
-        <div class="close-popup" onclick="closeCoinsPopup()">Close</div>
+    <div style="margin-top:12px; display:flex; gap:8px;">
+      <input id="redeemCode" placeholder="Enter code" style="flex:1; padding:8px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#fff;">
+      <button id="redeemBtn" class="popup-btn" style="padding:10px 12px;">Redeem</button>
     </div>
 
-    <!-- LOGIN POPUP -->
-    <div id="login-popup" class="auth-popup" style="display:none;">
-        <div class="auth-box">
-            <h2>Login</h2>
-            <input id="login-email" type="email" placeholder="Email">
-            <input id="login-pass" type="password" placeholder="Password">
-            <button class="hero-btn" onclick="loginSubmit()">Login</button>
-            <div class="close-popup" onclick="closeLogin()">Close</div>
-        </div>
-    </div>
+    <div style="margin-top:14px; text-align:center; color:rgba(255,255,255,0.6); cursor:pointer;" onclick="closeCoinsPopup()">Close</div>
+  </div>
 
-    <!-- SIGNUP POPUP -->
-    <div id="signup-popup" class="auth-popup" style="display:none;">
-        <div class="auth-box">
-            <h2>Create Account</h2>
-            <input id="signup-email" type="email" placeholder="Email">
-            <input id="signup-pass" type="password" placeholder="Password">
-            <button class="hero-btn" onclick="signupSubmit()">Sign Up</button>
-            <div class="close-popup" onclick="closeSignup()">Close</div>
-        </div>
-    </div>
+  <!-- AUTH POPUP (single unified) -->
+  <div id="authPopup" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background:rgba(2,6,23,0.6); z-index:120;">
+    <div style="background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:22px; border-radius:12px; width:92%; max-width:420px; position:relative;">
+      <button id="closeAuthPopup" style="position:absolute; right:12px; top:10px; background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
+      <h3 style="color:#facc15; margin-bottom:8px;">Account</h3>
+      <div id="authPopupMessage" style="color:#fff; margin-bottom:8px;"></div>
 
-    <!-- JS FILES -->
-    <script src="auth.js"></script>
-    <script src="coins.js"></script>
-    <script src="animations.js"></script>
+      <input id="emailInput" placeholder="Email" style="width:100%; padding:10px; margin:8px 0; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#fff;">
+      <input id="passwordInput" placeholder="Password" type="password" style="width:100%; padding:10px; margin:8px 0; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#fff;">
+
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button id="loginBtn" class="primary-btn" style="flex:1;">Login</button>
+        <button id="registerBtn" class="secondary-btn" style="flex:1;">Sign up</button>
+      </div>
+
+      <div style="margin-top:10px; text-align:center; color:rgba(255,255,255,0.6);">
+        <small>After sign up you'll get a verification email — confirm it and you'll be logged in automatically.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- About / Privacy modals (simple) -->
+  <div id="aboutModal" class="big-modal" style="display:none;">
+    <div class="modal-inner">
+      <button class="close-x" onclick="closeModal('aboutModal')">✕</button>
+      <h3>About LPHONK</h3>
+      <p>LPHONK generates Brazilian Funk vocals synced to your beats. Upload an instrumental, optionally upload a reference vocal, and create a vocal clip.</p>
+    </div>
+  </div>
+
+  <div id="privacyModal" class="big-modal" style="display:none;">
+    <div class="modal-inner">
+      <button class="close-x" onclick="closeModal('privacyModal')">✕</button>
+      <h3>Privacy</h3>
+      <p>Files are processed to generate vocals and are not stored without consent.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>© 2025 LPHONK</div>
+    <div style="margin-top:6px;"><a onclick="openModal('privacyModal')">Privacy</a> • <a onclick="openModal('aboutModal')">About</a></div>
+  </footer>
+
+  <!-- SCRIPTS (order matters) -->
+  <script>
+    // small glue helpers used by inline buttons
+    function openAuthPopup(mode){
+      document.getElementById('authPopup').style.display = 'flex';
+      // clear message & inputs
+      document.getElementById('authPopupMessage').innerHTML = '';
+      document.getElementById('emailInput').value = '';
+      document.getElementById('passwordInput').value = '';
+      // optionally prefill or change UI based on mode (login/signup). We keep both buttons visible.
+    }
+    function closeAuthPopup(){ document.getElementById('authPopup').style.display = 'none'; }
+    function openModal(id){ document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+
+    function openCoinsPopup(){ document.getElementById('coinsPopup').style.display = 'block'; }
+    function closeCoinsPopup(){ document.getElementById('coinsPopup').style.display = 'none'; }
+  </script>
+
+  <!-- your app scripts (must exist) -->
+  <script src="animations.js" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="coins.js" defer></script>
 
 </body>
-</html>
+    </html>
