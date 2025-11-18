@@ -1,180 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LPHONK — Vocal Generator</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Firebase compat (keeps code simple) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPHONK – AI Brazilian Funk Vocal Generator</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+      authDomain: "lphonk.firebaseapp.com",
+      projectId: "lphonk",
+      storageBucket: "lphonk.firebasestorage.app",
+      messagingSenderId: "193256977034",
+      appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+      measurementId: "G-5QMHMLDHBW"
+    };
+    </script>
 </head>
+
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="nav">
-    <div class="nav-left">
-      <div class="logo">LPHONK</div>
-    </div>
-    <div class="nav-right">
-      <button id="navLoginBtn" class="ghost-btn" onclick="showAuth('login')">Login</button>
-      <button id="navSignupBtn" class="ghost-btn" onclick="showAuth('signup')">Sign Up</button>
-    </div>
-  </nav>
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">LPHONK</div>
+        <div id="user-coins" style="display:none; font-weight:700;">
+            <img src="coin.png" style="width:22px; vertical-align:middle;">
+            <span id="coin-count">0</span>
+            <button id="open-coins" style="background:none; color:#facc15; font-size:20px; border:none; cursor:pointer;">+</button>
+        </div>
+    </nav>
 
-  <!-- HERO -->
-  <header class="hero" id="hero">
-    <div class="hero-inner">
-      <div class="hero-left">
-        <h1 class="title">AI vocals for your beats — instantly</h1>
-        <p class="subtitle">Upload an instrumental, pick a Brazilian Funk style or clone a reference, then generate vocals synced to your beat. Fast, free, and viral-ready.</p>
+    <!-- HERO SECTION -->
+    <section class="hero fade-in">
+        <h1 class="slide-up">AI Brazilian Funk Vocal Generator</h1>
+        <p class="slide-up" style="transition-delay:0.2s;">
+            Upload your beat → Get automatic Brazilian Funk vocals synced to the drop.
+        </p>
 
-        <!-- CTA buttons (centered) -->
-        <div class="hero-ctas" id="heroCtas">
-          <button class="primary-btn" onclick="showAuth('signup')">Get Started — Free</button>
-          <button class="secondary-btn" onclick="showAuth('login')">Login</button>
-          <button class="tertiary-btn" onclick="openModal('aboutModal')">Learn More</button>
+        <!-- Floating Headphones -->
+        <img src="headphones.png" class="hero-img float pulse" alt="Headphones">
+
+        <!-- HERO BUTTONS (hidden after login) -->
+        <div id="hero-buttons" class="slide-up" style="transition-delay:0.3s;">
+            <button class="hero-btn" onclick="showLogin()">Login</button>
+            <button class="hero-btn" onclick="showSignup()">Sign Up</button>
+            <button class="hero-btn" onclick="continueGuest()">Continue as Guest</button>
         </div>
 
-        <!-- When logged in, the dashboard (upload / generate) appears here under description -->
-        <div id="heroDashboardArea"></div>
-      </div>
-
-      <!-- Hero illustration: H4 — headphones + animated waves (inline SVG) -->
-      <div class="hero-right">
-        <!-- Headphones SVG + animated waves -->
-        <div class="hero-illustration" id="heroIllustration">
-          <!-- Simplified headphone SVG -->
-          <svg id="headphoneSVG" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="g1" x1="0" x2="1">
-                <stop offset="0" stop-color="#8b5cf6"/>
-                <stop offset="1" stop-color="#06b6d4"/>
-              </linearGradient>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-
-            <!-- headphones -->
-            <g transform="translate(60,40)">
-              <path d="M40 140 Q40 40 140 40 Q240 40 240 140" fill="none" stroke="url(#g1)" stroke-width="18" stroke-linecap="round" filter="url(#glow)"/>
-              <rect x="20" y="140" rx="18" ry="18" width="40" height="80" fill="#111" stroke="url(#g1)" stroke-width="6" />
-              <rect x="220" y="140" rx="18" ry="18" width="40" height="80" fill="#111" stroke="url(#g1)" stroke-width="6" />
-            </g>
-
-            <!-- circular base -->
-            <circle cx="200" cy="230" r="90" fill="transparent" stroke="url(#g1)" stroke-width="2" opacity="0.2"/>
-          </svg>
-
-          <!-- animated waves (DOM elements, animated by animations.js) -->
-          <div class="waves" id="waves">
-            <div class="wave wave-1"></div>
-            <div class="wave wave-2"></div>
-            <div class="wave wave-3"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- AUTH PANELS (separate area rendered centered) -->
-  <main id="mainArea">
-    <section id="authArea">
-      <div id="loginForm" class="auth-card">
-        <h3>Login</h3>
-        <input id="loginEmail" type="email" placeholder="Email">
-        <input id="loginPassword" type="password" placeholder="Password">
-        <button class="primary-btn" onclick="login()">Login</button>
-        <p class="muted">Don't have an account? <a onclick="showAuth('signup')">Sign up</a></p>
-      </div>
-
-      <div id="signupForm" class="auth-card">
-        <h3>Create account</h3>
-        <input id="signupEmail" type="email" placeholder="Email">
-        <input id="signupPassword" type="password" placeholder="Password (min 6)">
-        <button class="primary-btn" onclick="signup()">Sign up</button>
-        <p class="muted">Already a user? <a onclick="showAuth('login')">Login</a></p>
-
-        <!-- verification panel (shown after signup) -->
-        <div id="verificationMessage" class="verification-card" style="display:none;">
-          <div class="check">✔</div>
-          <h4>Account created — verify your email</h4>
-          <p>We have sent a verification email to <strong id="userEmailDisplay"></strong>. Check your inbox or spam.</p>
-          <div class="row">
-            <button class="secondary-btn" onclick="resendVerification()">Resend email</button>
-          </div>
-        </div>
-      </div>
+        <div id="status-text" style="margin-top:25px;"></div>
     </section>
-  </main>
 
-  <!-- COINS POPUP (hidden) -->
-  <div id="coinsPopup" class="modal-card" aria-hidden="true">
-    <button class="close-x" onclick="closeCoinsPopup()">✕</button>
-    <h4>Get More Coins</h4>
+    <!-- GENERATOR SECTION (hidden until login) -->
+    <section id="generator-section" class="fade-in">
+        <div class="generate-box">
+            <h2 style="margin-bottom:10px;">Generate Vocals</h2>
+            <p>Upload your beat (no vocals)</p>
 
-    <div class="option">
-      <button class="cta-inline" id="youtubeClaimBtn" onclick="startYouTubeFlow()">
-        <img src="assets/youtube.png" alt="YouTube" class="icon"> Subscribe +10
-      </button>
-      <small class="muted">One-time bonus</small>
+            <input type="file" id="beat-upload">
+            
+            <button class="generate-btn">
+                <img src="coin.png"> Generate (5 Coins)
+            </button>
+        </div>
+    </section>
+
+    <!-- COINS POPUP -->
+    <div id="coins-popup">
+        <div class="popup-title">Get More Coins</div>
+
+        <button class="popup-btn" onclick="youtubeReward()">
+            <img src="youtube.png"> Subscribe – Get 10 Coins
+        </button>
+
+        <button class="popup-btn" onclick="dailyClaim()">
+            <img src="coin.png"> Daily Free 5 Coins
+        </button>
+
+        <button class="popup-btn" onclick="redeemPopup()">
+            <img src="coin.png"> Redeem Code
+        </button>
+
+        <div class="close-popup" onclick="closeCoinsPopup()">Close</div>
     </div>
 
-    <div class="option">
-      <button class="cta-inline" id="dailyBtn" onclick="claimDaily()">Claim Daily +5</button>
-      <small id="dailyNote" class="muted">Available once every 24h</small>
+    <!-- LOGIN POPUP -->
+    <div id="login-popup" class="auth-popup" style="display:none;">
+        <div class="auth-box">
+            <h2>Login</h2>
+            <input id="login-email" type="email" placeholder="Email">
+            <input id="login-pass" type="password" placeholder="Password">
+            <button class="hero-btn" onclick="loginSubmit()">Login</button>
+            <div class="close-popup" onclick="closeLogin()">Close</div>
+        </div>
     </div>
 
-    <div class="option">
-      <div class="redeem-row">
-        <input id="redeemCode" placeholder="Redeem code">
-        <button class="cta-inline" onclick="redeemCoins()">Redeem</button>
-      </div>
+    <!-- SIGNUP POPUP -->
+    <div id="signup-popup" class="auth-popup" style="display:none;">
+        <div class="auth-box">
+            <h2>Create Account</h2>
+            <input id="signup-email" type="email" placeholder="Email">
+            <input id="signup-pass" type="password" placeholder="Password">
+            <button class="hero-btn" onclick="signupSubmit()">Sign Up</button>
+            <div class="close-popup" onclick="closeSignup()">Close</div>
+        </div>
     </div>
 
-    <div class="hint muted">Close when done</div>
-  </div>
+    <!-- JS FILES -->
+    <script src="auth.js"></script>
+    <script src="coins.js"></script>
+    <script src="animations.js"></script>
 
-  <!-- MODALS: About / Contact / Privacy -->
-  <div id="aboutModal" class="big-modal">
-    <div class="modal-inner">
-      <button class="close-x" onclick="closeModal('aboutModal')">✕</button>
-      <h3>About LPHONK</h3>
-      <p>LPHONK generates Brazilian Funk vocals synced to your beats. Upload an instrumental, optionally upload a reference vocal for style cloning, and generate a short, viral-ready vocal clip.</p>
-    </div>
-  </div>
-
-  <div id="contactModal" class="big-modal">
-    <div class="modal-inner">
-      <button class="close-x" onclick="closeModal('contactModal')">✕</button>
-      <h3>Contact</h3>
-      <p>Email: <strong>contact@lphonk.com</strong></p>
-    </div>
-  </div>
-
-  <div id="privacyModal" class="big-modal">
-    <div class="modal-inner">
-      <button class="close-x" onclick="closeModal('privacyModal')">✕</button>
-      <h3>Privacy</h3>
-      <p>Files are processed for generation and not stored permanently without consent.</p>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div>© 2025 LPHONK</div>
-    <div class="muted small"><a onclick="openModal('privacyModal')">Privacy</a> • <a onclick="openModal('contactModal')">Contact</a></div>
-  </footer>
-
-  <!-- SCRIPTS -->
-  <script src="animations.js"></script>
-  <script src="auth.js"></script>
-  <script src="coins.js"></script>
 </body>
 </html>
