@@ -20,30 +20,40 @@ const db = firebase.firestore();
 // =======================
 const loginBtn = document.getElementById("loginBtn");
 const registerBtn = document.getElementById("registerBtn");
-const logoutBtn = document.getElementById("logoutBtn");
 
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
 
 const authPopup = document.getElementById("authPopup");
 const authPopupMessage = document.getElementById("authPopupMessage");
-const closeAuthPopup = document.getElementById("closeAuthPopup");
 
 const mainButtons = document.getElementById("mainButtons");
 const coinContainer = document.getElementById("coinContainer");
 const coinAmountElement = document.getElementById("coinAmount");
 
+const generatorSection = document.getElementById("generatorSection");
+
+// Create logout button (added to navbar)
+let logoutBtn = document.createElement("button");
+logoutBtn.id = "logoutBtn";
+logoutBtn.innerText = "Logout";
+logoutBtn.classList.add("nav-btn", "gradient-btn");
+logoutBtn.style.display = "none";
+
+document.querySelector(".nav-buttons").appendChild(logoutBtn);
+
 // =======================
-// SHOW POPUP MESSAGE
+// POPUP SYSTEM
 // =======================
 function showPopup(msg) {
   authPopupMessage.innerHTML = msg;
   authPopup.style.display = "flex";
 }
 
-closeAuthPopup.addEventListener("click", () => {
+// Close popup function used by HTML onclick
+window.closeAuthPopup = function () {
   authPopup.style.display = "none";
-});
+};
 
 // =======================
 // COIN SYSTEM
@@ -64,13 +74,11 @@ async function giveNewUserCoins(uid) {
 async function loadCoins(uid) {
   const ref = db.collection("users").doc(uid);
   const snap = await ref.get();
-  if (snap.exists) {
-    coinAmountElement.innerText = snap.data().coins;
-  }
+  if (snap.exists) coinAmountElement.innerText = snap.data().coins;
 }
 
 // =======================
-// REGISTER USER
+// REGISTER
 // =======================
 registerBtn.addEventListener("click", async () => {
   const email = emailInput.value;
@@ -83,9 +91,9 @@ registerBtn.addEventListener("click", async () => {
     await user.sendEmailVerification();
 
     showPopup(`
-      A verification email has been sent to <b>${email}</b>.<br><br>
-      Please check your inbox. If it's not there, check spam.<br><br>
-      Still not found? <span id="resendEmail" style="color:#4af;">Resend Email</span>
+      Verification email sent to <b>${email}</b>.<br><br>
+      Please verify your email before logging in.<br><br>
+      <span id="resendEmail" style="color:#4af; cursor:pointer;">Resend Email</span>
     `);
 
     document.getElementById("resendEmail").onclick = () => {
@@ -100,15 +108,15 @@ registerBtn.addEventListener("click", async () => {
 });
 
 // =======================
-// LOGIN USER
+// LOGIN
 // =======================
 loginBtn.addEventListener("click", async () => {
   const email = emailInput.value;
   const password = passwordInput.value;
 
   try {
-    const result = await auth.signInWithEmailAndPassword(email, password);
-    const user = result.user;
+    const res = await auth.signInWithEmailAndPassword(email, password);
+    const user = res.user;
 
     await user.reload();
 
@@ -119,7 +127,6 @@ loginBtn.addEventListener("click", async () => {
     }
 
     showPopup("Login successful!");
-
   } catch (err) {
     showPopup(err.message);
   }
@@ -130,6 +137,7 @@ loginBtn.addEventListener("click", async () => {
 // =======================
 logoutBtn.addEventListener("click", () => {
   auth.signOut();
+  showPopup("Logged out.");
 });
 
 // =======================
@@ -137,21 +145,21 @@ logoutBtn.addEventListener("click", () => {
 // =======================
 auth.onAuthStateChanged(async (user) => {
   if (user && user.emailVerified) {
-    // Logged in & verified
-    mainButtons.style.display = "none";             // Hide homepage buttons
-    coinContainer.style.display = "flex";           // Show coins
+    // User logged in
+    mainButtons.style.display = "none";
+    coinContainer.style.display = "flex";
     logoutBtn.style.display = "inline-block";
 
     await loadCoins(user.uid);
 
-    document.getElementById("generatorSection").style.display = "block";
+    generatorSection.style.display = "block";
 
   } else {
-    // Logged out
+    // User logged out
     mainButtons.style.display = "flex";
     coinContainer.style.display = "none";
     logoutBtn.style.display = "none";
 
-    document.getElementById("generatorSection").style.display = "none";
+    generatorSection.style.display = "none";
   }
 });
