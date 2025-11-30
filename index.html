@@ -220,11 +220,9 @@ document.getElementById('signupBtn').onclick = async ()=>{
     const password=document.getElementById('signupPassword').value;
     try{
         let userCredential;
-        // Try to sign in first to see if account exists
         try{
             userCredential = await auth.signInWithEmailAndPassword(email,password);
             currentUser=userCredential.user;
-            // Already exists, just send verification if not verified
             if(!currentUser.emailVerified){
                 await currentUser.sendEmailVerification();
                 openVerify(email);
@@ -232,11 +230,12 @@ document.getElementById('signupBtn').onclick = async ()=>{
                 alert("Account already verified. Please login.");
             }
         }catch{
-            // If not exist, create
             userCredential = await auth.createUserWithEmailAndPassword(email,password);
             currentUser=userCredential.user;
             await currentUser.sendEmailVerification();
-            await db.collection("users").doc(currentUser.uid).set({coins:15,dailyClaim:null,youtubeClaimed:false,onboardingDone:false});
+            // Ensure Firestore doc exists
+            const userRef=db.collection("users").doc(currentUser.uid);
+            await userRef.set({coins:15,dailyClaim:null,youtubeClaimed:false,onboardingDone:false});
             openVerify(email);
         }
     }catch(err){alert(err.message);}
@@ -257,12 +256,18 @@ document.getElementById('loginBtn').onclick = async ()=>{
             auth.signOut();
             return;
         }
-        // redirect
-        const ref=db.collection("users").doc(user.uid);
-        const snap=await ref.get();
-        if(!snap.exists)return;
-        if(!snap.data().onboardingDone) window.location.href="onboarding.html";
+
+        // Ensure Firestore doc exists
+        const userRef=db.collection("users").doc(user.uid);
+        const snap=await userRef.get();
+        if(!snap.exists){
+            await userRef.set({coins:15,dailyClaim:null,youtubeClaimed:false,onboardingDone:false});
+        }
+
+        const snap2=await userRef.get();
+        if(!snap2.data().onboardingDone) window.location.href="onboarding.html";
         else window.location.href="dashboard.html";
+
     }catch(err){alert(err.message);}
 }
 
@@ -278,10 +283,13 @@ document.getElementById('verifiedBtn').onclick = async ()=>{
 auth.onAuthStateChanged(async user=>{
     if(user && user.emailVerified){
         currentUser=user;
-        const ref=db.collection("users").doc(user.uid);
-        const snap=await ref.get();
-        if(!snap.exists)return;
-        if(!snap.data().onboardingDone) window.location.href="onboarding.html";
+        const userRef=db.collection("users").doc(user.uid);
+        const snap=await userRef.get();
+        if(!snap.exists){
+            await userRef.set({coins:15,dailyClaim:null,youtubeClaimed:false,onboardingDone:false});
+        }
+        const snap2=await userRef.get();
+        if(!snap2.data().onboardingDone) window.location.href="onboarding.html";
         else window.location.href="dashboard.html";
     }
 });
