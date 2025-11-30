@@ -6,12 +6,10 @@
 <title>LPHONK — Onboarding</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-/* Base styles */
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
 body{background:#0a0a0a;color:white;}
-h1,h2,h3,h4,h5,h6{color:#ffc600;}
 .container{max-width:500px;margin:50px auto;padding:20px;background:#111;border-radius:10px;}
-h1{text-align:center;margin-bottom:20px;}
+h1{text-align:center;margin-bottom:20px;color:#ffc600;}
 p{margin-bottom:15px;color:#ccc;font-size:0.95rem;}
 input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:none;background:#1b1b1b;color:white;}
 button{padding:12px 20px;border:none;border-radius:8px;font-weight:700;margin-top:10px;cursor:pointer;transition:0.2s;}
@@ -21,8 +19,6 @@ button:hover{opacity:0.85;}
 .actions{display:flex;justify-content:center;gap:10px;margin-top:20px;}
 @media(max-width:480px){.container{margin:20px;padding:15px;}}
 </style>
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -49,7 +45,7 @@ button:hover{opacity:0.85;}
 </div>
 
 <script>
-// Firebase config
+// Firebase init
 const firebaseConfig = {
   apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
   authDomain: "lphonk.firebaseapp.com",
@@ -63,15 +59,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Ensure user is logged in and not completed onboarding
-auth.onAuthStateChanged(async user=>{
-  if(!user) window.location.href="index.html"; // redirect if logged out
-  else {
-    const doc = await db.collection("users").doc(user.uid).get();
-    if(doc.exists && doc.data().onboardingCompleted) window.location.href="dashboard.html"; // prevent revisiting
-  }
-});
-
 // Elements
 const skipBtn = document.getElementById("skipBtn");
 const continueBtn = document.getElementById("continueBtn");
@@ -79,32 +66,43 @@ const nameInput = document.getElementById("name");
 const favFunkInput = document.getElementById("favFunk");
 const experienceInput = document.getElementById("experience");
 
-// Skip onboarding
-skipBtn.addEventListener("click", async ()=>{
-  const user = auth.currentUser;
-  if(user){
-    await db.collection("users").doc(user.uid).set({onboardingCompleted:true},{merge:true});
-    window.location.href="dashboard.html";
+// Wait for auth
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "index.html"; // redirect if not logged in
+    return;
   }
-});
+  if (!user.emailVerified) {
+    alert("Please verify your email before completing onboarding.");
+    auth.signOut();
+    window.location.href = "index.html";
+    return;
+  }
 
-// Continue onboarding
-continueBtn.addEventListener("click", async ()=>{
-  const user = auth.currentUser;
-  if(user){
+  // Check if onboarding already done
+  const doc = await db.collection("users").doc(user.uid).get();
+  if (doc.exists && doc.data().onboardingCompleted) {
+    window.location.href = "dashboard.html"; // prevent revisiting
+  }
+
+  // Attach button events now
+  skipBtn.addEventListener("click", async () => {
+    await db.collection("users").doc(user.uid).set({onboardingCompleted:true}, {merge:true});
+    window.location.href = "dashboard.html";
+  });
+
+  continueBtn.addEventListener("click", async () => {
     const name = nameInput.value || "";
     const favFunk = favFunkInput.value || "";
     const experience = experienceInput.value || "";
-
     await db.collection("users").doc(user.uid).set({
       onboardingCompleted:true,
-      name:name,
+      name,
       favouriteFunk:favFunk,
-      experience:experience
+      experience
     }, {merge:true});
-
-    window.location.href="dashboard.html";
-  }
+    window.location.href = "dashboard.html";
+  });
 });
 </script>
 </body>
