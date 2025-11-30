@@ -6,44 +6,86 @@
 <title>LPHONK — Free AI Brazilian Funk Vocals</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'Inter',sans-serif;background:#0a0a0a;color:white;overflow-x:hidden;}
+/* =========================
+   Base & Typography
+========================= */
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+body{background:#0a0a0a;color:white;overflow-x:hidden;}
 a{color:#ffc600;text-decoration:none;cursor:pointer;}
-.nav{display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background:#111;border-bottom:1px solid #222;}
-.logo{font-weight:900;color:#ffc600;font-size:24px;}
-.nav-buttons button{margin-left:10px;}
-.nav-btn{padding:8px 18px;border-radius:8px;border:none;font-weight:600;cursor:pointer;background:linear-gradient(90deg,#ffc600,#ffea00);color:black;}
-.hero{display:flex;justify-content:space-between;align-items:center;padding:50px;}
-.hero-left{flex:1;}
-.title{font-size:2.2rem;font-weight:900;color:#ffc600;}
+button{cursor:pointer;transition:0.2s;}
+button:focus{outline:none;}
+
+/* =========================
+   Navbar
+========================= */
+.nav{display:flex;justify-content:space-between;align-items:center;padding:15px 5%;background:#111;border-bottom:1px solid #222;}
+.logo{font-weight:900;color:#ffc600;font-size:1.8rem;}
+.nav-buttons button{margin-left:10px;padding:8px 18px;border-radius:8px;border:none;font-weight:600;background:linear-gradient(90deg,#ffc600,#ffea00);color:black;}
+
+/* =========================
+   Hero Section
+========================= */
+.hero{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:50px 5%;}
+.hero-left{flex:1;min-width:280px;}
+.title{font-size:2rem;font-weight:900;background:linear-gradient(90deg,#ffc600,#ffea00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .subtitle{margin-top:15px;color:#ccc;font-size:1rem;}
-.hero-ctas{margin-top:25px;display:flex;gap:10px;}
-.primary-btn,.secondary-btn,.tertiary-btn{padding:12px 25px;font-weight:700;border-radius:8px;border:none;cursor:pointer;transition:0.2s;}
+.hero-ctas{margin-top:25px;display:flex;flex-wrap:wrap;gap:10px;}
+.primary-btn,.secondary-btn,.tertiary-btn{padding:12px 25px;font-weight:700;border-radius:8px;border:none;}
 .primary-btn{background:linear-gradient(90deg,#ffc600,#ffea00);color:black;}
 .secondary-btn{background:#444;color:white;}
 .tertiary-btn{background:transparent;color:#ffc600;border:1px solid #ffc600;}
 .primary-btn:hover,.secondary-btn:hover,.tertiary-btn:hover{opacity:0.85;}
-.hero-right{flex:1;display:flex;justify-content:center;align-items:center;position:relative;}
-.hero-illustration{position:relative;width:300px;height:300px;}
+
+/* =========================
+   Hero Right Illustration
+========================= */
+.hero-right{flex:1;min-width:280px;display:flex;justify-content:center;align-items:center;position:relative;margin-top:30px;}
+.hero-illustration{position:relative;width:250px;height:250px;}
 .headphones{width:100%;animation:float 3s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+/* Waves */
 .waves{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
 .wave{position:absolute;width:100%;height:100%;border:2px solid #ffc600;border-radius:50%;animation:waveAnim 2s infinite;}
 .wave-1{animation-delay:0s;}.wave-2{animation-delay:0.3s;}.wave-3{animation-delay:0.6s;}
 @keyframes waveAnim{0%{transform:scale(0.7);opacity:0.4;}50%{transform:scale(1);opacity:0.7;}100%{transform:scale(0.7);opacity:0.4;}}
+
+/* =========================
+   Modals / Popups
+========================= */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;z-index:9999;}
 .modal-content{background:#111;padding:25px;border-radius:10px;max-width:400px;width:90%;position:relative;text-align:center;}
 .scrollable{max-height:80vh;overflow-y:auto;}
 .close-x{position:absolute;top:10px;right:10px;background:none;border:none;font-size:18px;color:#fff;cursor:pointer;}
-.modal-title{font-weight:700;font-size:1.3rem;color:#ffc600;}
+.modal-title{font-weight:700;font-size:1.3rem;color:#ffc600;margin-bottom:15px;}
 .modal-msg{margin:15px 0;color:#ccc;}
 input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:none;background:#1b1b1b;color:white;}
+
+/* Buttons in modal */
 .auth-btns{display:flex;justify-content:space-between;margin-top:15px;gap:10px;}
+.modal button{font-weight:700;border-radius:6px;padding:10px;}
+
+/* =========================
+   Footer
+========================= */
 .footer{padding:20px;text-align:center;font-size:14px;color:#888;background:#111;border-top:1px solid #222;}
 .footer a{color:#ffc600;cursor:pointer;text-decoration:none;}
+
+/* =========================
+   Responsive
+========================= */
+@media(max-width:768px){
+  .hero{flex-direction:column;align-items:center;text-align:center;}
+  .hero-right{margin-top:20px;}
+  .hero-ctas{justify-content:center;}
+}
 </style>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
 
@@ -51,8 +93,8 @@ input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:none;backgro
 <nav class="nav">
   <div class="logo">LPHONK</div>
   <div class="nav-buttons">
-    <button class="nav-btn" onclick="openAuthPopup('login')">Login</button>
-    <button class="nav-btn" onclick="openAuthPopup('signup')">Sign Up</button>
+    <button class="nav-btn" onclick="openSignupPopup()">Sign Up</button>
+    <button class="nav-btn" onclick="openLoginPopup()">Login</button>
   </div>
 </nav>
 
@@ -62,8 +104,8 @@ input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:none;backgro
     <h1 class="title">AI Brazilian Funk Vocals for Your Beats</h1>
     <p class="subtitle">Upload an instrumental beat and generate bouncy, rhythmic vocals synced to the drop.</p>
     <div class="hero-ctas">
-      <button class="primary-btn" onclick="openAuthPopup('signup')">Get Started — Free</button>
-      <button class="secondary-btn" onclick="openAuthPopup('login')">Login</button>
+      <button class="primary-btn" onclick="openSignupPopup()">Get Started — Free</button>
+      <button class="secondary-btn" onclick="openLoginPopup()">Login</button>
       <button class="tertiary-btn" onclick="openModal('aboutModal')">Learn More</button>
     </div>
   </div>
@@ -79,19 +121,32 @@ input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:none;backgro
   </div>
 </header>
 
-<!-- AUTH POPUP -->
-<div id="authPopup" class="modal">
+<!-- SIGNUP POPUP -->
+<div id="signupPopup" class="modal">
   <div class="modal-content">
-    <button class="close-x" onclick="closeAuthPopup()">✕</button>
-    <h3 class="modal-title">Account</h3>
-    <div id="authPopupMessage" class="modal-msg"></div>
-    <input id="emailInput" type="email" placeholder="Email">
-    <input id="passwordInput" type="password" placeholder="Password">
+    <button class="close-x" onclick="closeSignupPopup()">✕</button>
+    <h3 class="modal-title">Sign Up</h3>
+    <div id="signupMessage" class="modal-msg"></div>
+    <input id="signupEmail" type="email" placeholder="Email">
+    <input id="signupPassword" type="password" placeholder="Password">
     <div class="auth-btns">
-      <button id="loginBtn" class="primary-btn">Login</button>
-      <button id="registerBtn" class="secondary-btn">Sign Up</button>
+      <button id="signupBtn" class="primary-btn">Sign Up</button>
     </div>
     <small>After signup, verify your email (check inbox or spam). Once verified, you'll be redirected automatically.</small>
+  </div>
+</div>
+
+<!-- LOGIN POPUP -->
+<div id="loginPopup" class="modal">
+  <div class="modal-content">
+    <button class="close-x" onclick="closeLoginPopup()">✕</button>
+    <h3 class="modal-title">Login</h3>
+    <div id="loginMessage" class="modal-msg"></div>
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <div class="auth-btns">
+      <button id="loginBtn" class="primary-btn">Login</button>
+    </div>
   </div>
 </div>
 
@@ -134,58 +189,73 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ========================
 // UI Elements
+// ========================
+const signupPopup=document.getElementById("signupPopup");
+const loginPopup=document.getElementById("loginPopup");
+const signupEmail=document.getElementById("signupEmail");
+const signupPassword=document.getElementById("signupPassword");
+const signupBtn=document.getElementById("signupBtn");
+const signupMessage=document.getElementById("signupMessage");
+const loginEmail=document.getElementById("loginEmail");
+const loginPassword=document.getElementById("loginPassword");
 const loginBtn=document.getElementById("loginBtn");
-const registerBtn=document.getElementById("registerBtn");
-const emailInput=document.getElementById("emailInput");
-const passwordInput=document.getElementById("passwordInput");
-const authPopup=document.getElementById("authPopup");
-const authPopupMessage=document.getElementById("authPopupMessage");
+const loginMessage=document.getElementById("loginMessage");
 
-// Popups
-function showPopup(msg){authPopupMessage.innerHTML=msg;authPopup.style.display="flex";}
-function closeAuthPopup(){authPopup.style.display="none";}
+// ========================
+// Popup functions
+// ========================
+function openSignupPopup(){signupPopup.style.display="flex";}
+function closeSignupPopup(){signupPopup.style.display="none";signupMessage.innerHTML='';}
+function openLoginPopup(){loginPopup.style.display="flex";}
+function closeLoginPopup(){loginPopup.style.display="none";loginMessage.innerHTML='';}
 function openModal(id){document.getElementById(id).style.display="flex";document.body.style.overflow='hidden';}
 function closeModal(id){document.getElementById(id).style.display="none";document.body.style.overflow='auto';}
 
+// ========================
 // Auth state
-auth.onAuthStateChanged(async(user)=>{
-    if(user && user.emailVerified){window.location.href="dashboard.html";}
+// ========================
+auth.onAuthStateChanged(user=>{
+  if(user && user.emailVerified){window.location.href="onboarding.html";}
 });
 
-// Register
-registerBtn.addEventListener("click",async()=>{
-    const email=emailInput.value;
-    const password=passwordInput.value;
-    try{
-        const methods=await auth.fetchSignInMethodsForEmail(email);
-        let user;
-        if(methods.length===0){
-            const uc=await auth.createUserWithEmailAndPassword(email,password);
-            user=uc.user;
-            await db.collection("users").doc(user.uid).set({coins:15});
-        }else{
-            user=auth.currentUser;
-            if(!user){alert("Email exists. Login or resend verification."); return;}
-        }
-        await user.sendEmailVerification();
-        showPopup(`Verification email sent to <b>${email}</b>. Check inbox or spam.<br><br><button id="resendEmailBtn">Resend Email</button>`);
-        document.getElementById("resendEmailBtn").onclick=async()=>{await user.sendEmailVerification();showPopup("Verification email resent!");};
-    }catch(err){alert(err.message);}
+// ========================
+// SIGNUP
+// ========================
+signupBtn.addEventListener("click",async()=>{
+  const email=signupEmail.value;
+  const password=signupPassword.value;
+  try{
+    const methods=await auth.fetchSignInMethodsForEmail(email);
+    let user;
+    if(methods.length===0){
+      const uc=await auth.createUserWithEmailAndPassword(email,password);
+      user=uc.user;
+      await db.collection("users").doc(user.uid).set({coins:15});
+    }else{
+      user=auth.currentUser;
+      if(!user){alert("Email exists. Login or resend verification."); return;}
+    }
+    await user.sendEmailVerification();
+    signupMessage.innerHTML=`Verification email sent to <b>${email}</b>. Check inbox or spam.<br><br><button id="resendEmailBtn">Resend Email</button>`;
+    document.getElementById("resendEmailBtn").onclick=async()=>{await user.sendEmailVerification();signupMessage.innerHTML="Verification email resent!";};
+  }catch(err){alert(err.message);}
 });
 
-// Login
+// ========================
+// LOGIN
+// ========================
 loginBtn.addEventListener("click",async()=>{
-    const email=emailInput.value;
-    const password=passwordInput.value;
-    try{
-        const res=await auth.signInWithEmailAndPassword(email,password);
-        await res.user.reload();
-        if(!res.user.emailVerified){alert("Email not verified! Check inbox or spam."); auth.signOut(); return;}
-        window.location.href="dashboard.html";
-    }catch(err){alert(err.message);}
+  const email=loginEmail.value;
+  const password=loginPassword.value;
+  try{
+    const res=await auth.signInWithEmailAndPassword(email,password);
+    await res.user.reload();
+    if(!res.user.emailVerified){alert("Email not verified! Check inbox or spam."); auth.signOut(); return;}
+    window.location.href="dashboard.html";
+  }catch(err){alert(err.message);}
 });
 </script>
-
 </body>
 </html>
