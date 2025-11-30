@@ -19,8 +19,6 @@ button:hover{opacity:0.85;}
 .actions{display:flex;justify-content:center;gap:10px;margin-top:20px;}
 @media(max-width:480px){.container{margin:20px;padding:15px;}}
 </style>
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -68,64 +66,63 @@ const nameInput = document.getElementById("name");
 const favFunkInput = document.getElementById("favFunk");
 const experienceInput = document.getElementById("experience");
 
-// Wait for auth
-auth.onAuthStateChanged(async (user) => {
-  if (!user) {
-    window.location.href = "index.html"; // redirect if not logged in
-    return;
-  }
-  if (!user.emailVerified) {
-    alert("Please verify your email before completing onboarding.");
+// Helper to get current user reliably
+async function getUser() {
+  return new Promise(resolve=>{
+    const user = auth.currentUser;
+    if(user) resolve(user);
+    else {
+      const unsubscribe = auth.onAuthStateChanged(u=>{
+        unsubscribe();
+        resolve(u);
+      });
+    }
+  });
+}
+
+// Prevent access if already completed onboarding
+async function checkOnboarding() {
+  const user = await getUser();
+  if(!user) return window.location.href="index.html";
+  if(!user.emailVerified){
+    alert("Please verify your email before onboarding.");
     auth.signOut();
-    window.location.href = "index.html";
-    return;
+    return window.location.href="index.html";
   }
+  const doc = await db.collection("users").doc(user.uid).get();
+  if(doc.exists && doc.data().onboardingCompleted) window.location.href="dashboard.html";
+}
 
-  // Check if onboarding already done
+// Attach button listeners
+skipBtn.addEventListener("click", async ()=>{
+  const user = await getUser();
+  if(!user) return;
   try{
-    const doc = await db.collection("users").doc(user.uid).get();
-    if (doc.exists && doc.data().onboardingCompleted) {
-      window.location.href = "dashboard.html"; // prevent revisiting
-      return;
-    }
-  }catch(err){
-    console.error("Error checking onboarding:", err);
-  }
-
-  // Attach button events now
-
-  skipBtn.addEventListener("click", async () => {
-    try{
-      await db.collection("users").doc(user.uid).set({onboardingCompleted:true},{merge:true});
-      window.location.href = "dashboard.html";
-    }catch(err){
-      alert("Error saving onboarding: "+err.message);
-    }
-  });
-
-  continueBtn.addEventListener("click", async () => {
-    const name = nameInput.value.trim();
-    const favFunk = favFunkInput.value.trim();
-    const experience = experienceInput.value.trim();
-
-    if(!name || !favFunk || !experience){
-      alert("Please answer all questions before continuing or click Skip.");
-      return;
-    }
-
-    try{
-      await db.collection("users").doc(user.uid).set({
-        onboardingCompleted:true,
-        name,
-        favouriteFunk:favFunk,
-        experience
-      }, {merge:true});
-      window.location.href = "dashboard.html";
-    }catch(err){
-      alert("Error saving onboarding: "+err.message);
-    }
-  });
+    await db.collection("users").doc(user.uid).set({onboardingCompleted:true},{merge:true});
+    window.location.href="dashboard.html";
+  }catch(err){alert("Error saving onboarding: "+err.message);}
 });
+
+continueBtn.addEventListener("click", async ()=>{
+  const user = await getUser();
+  if(!user) return;
+  const name = nameInput.value.trim();
+  const favFunk = favFunkInput.value.trim();
+  const experience = experienceInput.value.trim();
+  if(!name || !favFunk || !experience){alert("Please answer all questions before continuing or click Skip."); return;}
+  try{
+    await db.collection("users").doc(user.uid).set({
+      onboardingCompleted:true,
+      name,
+      favouriteFunk:favFunk,
+      experience
+    },{merge:true});
+    window.location.href="dashboard.html";
+  }catch(err){alert("Error saving onboarding: "+err.message);}
+});
+
+// Run check immediately
+checkOnboarding();
 </script>
 </body>
 </html>
