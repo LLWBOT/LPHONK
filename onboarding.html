@@ -19,6 +19,8 @@ button:hover{opacity:0.85;}
 .actions{display:flex;justify-content:center;gap:10px;margin-top:20px;}
 @media(max-width:480px){.container{margin:20px;padding:15px;}}
 </style>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -80,28 +82,48 @@ auth.onAuthStateChanged(async (user) => {
   }
 
   // Check if onboarding already done
-  const doc = await db.collection("users").doc(user.uid).get();
-  if (doc.exists && doc.data().onboardingCompleted) {
-    window.location.href = "dashboard.html"; // prevent revisiting
+  try{
+    const doc = await db.collection("users").doc(user.uid).get();
+    if (doc.exists && doc.data().onboardingCompleted) {
+      window.location.href = "dashboard.html"; // prevent revisiting
+      return;
+    }
+  }catch(err){
+    console.error("Error checking onboarding:", err);
   }
 
   // Attach button events now
+
   skipBtn.addEventListener("click", async () => {
-    await db.collection("users").doc(user.uid).set({onboardingCompleted:true}, {merge:true});
-    window.location.href = "dashboard.html";
+    try{
+      await db.collection("users").doc(user.uid).set({onboardingCompleted:true},{merge:true});
+      window.location.href = "dashboard.html";
+    }catch(err){
+      alert("Error saving onboarding: "+err.message);
+    }
   });
 
   continueBtn.addEventListener("click", async () => {
-    const name = nameInput.value || "";
-    const favFunk = favFunkInput.value || "";
-    const experience = experienceInput.value || "";
-    await db.collection("users").doc(user.uid).set({
-      onboardingCompleted:true,
-      name,
-      favouriteFunk:favFunk,
-      experience
-    }, {merge:true});
-    window.location.href = "dashboard.html";
+    const name = nameInput.value.trim();
+    const favFunk = favFunkInput.value.trim();
+    const experience = experienceInput.value.trim();
+
+    if(!name || !favFunk || !experience){
+      alert("Please answer all questions before continuing or click Skip.");
+      return;
+    }
+
+    try{
+      await db.collection("users").doc(user.uid).set({
+        onboardingCompleted:true,
+        name,
+        favouriteFunk:favFunk,
+        experience
+      }, {merge:true});
+      window.location.href = "dashboard.html";
+    }catch(err){
+      alert("Error saving onboarding: "+err.message);
+    }
   });
 });
 </script>
