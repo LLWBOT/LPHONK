@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPHONK — Onboarding</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:#0a0a0a;
+    color:white;
+}
+.container{
+    max-width:500px;
+    margin:50px auto;
+    background:#111;
+    padding:30px;
+    border-radius:10px;
+    border:1px solid #222;
+}
+h1{
+    color:#ffc600;
+    text-align:center;
+}
+.question{
+    margin:20px 0;
+}
+label{
+    display:block;
+    margin:10px 0;
+}
+input[type="text"], select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:6px;
+    border:none;
+    background:#1b1b1b;
+    color:white;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(90deg,#ffc600,#ffea00);
+    color:black;
+    transition:0.2s;
+}
+button:hover{opacity:0.85;}
+.skip-btn{
+    background:#444;
+    margin-top:10px;
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Welcome to LPHONK!</h1>
+    <p>Let’s personalize your experience. You can skip if you want.</p>
+
+    <div class="question">
+        <label>1. Your favorite funk style:</label>
+        <select id="favStyle">
+            <option value="">-- Select style --</option>
+            <option value="Montagem Rugada">Montagem Rugada</option>
+            <option value="Sente Mais">Sente Mais</option>
+            <option value="Veky Veky">Veky Veky</option>
+            <option value="Sem Saida">Sem Saida</option>
+            <option value="Vai no Vapor">Vai no Vapor</option>
+        </select>
+    </div>
+
+    <div class="question">
+        <label>2. Preferred AI-generated vocals:</label>
+        <select id="vocalPref">
+            <option value="">-- Select preference --</option>
+            <option value="Fast/Energetic">Fast/Energetic</option>
+            <option value="Melodic/Bouncy">Melodic/Bouncy</option>
+            <option value="Mix of Both">Mix of Both</option>
+        </select>
+    </div>
+
+    <div class="question">
+        <label>3. How often do you make beats?</label>
+        <select id="frequency">
+            <option value="">-- Select frequency --</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Occasionally">Occasionally</option>
+            <option value="Just Exploring">Just Exploring</option>
+        </select>
+    </div>
+
+    <div class="question">
+        <label>4. Optional nickname:</label>
+        <input type="text" id="nickname" placeholder="Enter nickname">
+    </div>
+
+    <button id="finishBtn">Finish</button>
+    <button id="skipBtn" class="skip-btn">Skip</button>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+  authDomain: "lphonk.firebaseapp.com",
+  projectId: "lphonk",
+  storageBucket: "lphonk.firebasestorage.app",
+  messagingSenderId: "193256977034",
+  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+  measurementId: "G-5QMHMLDHBW"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+
+// ===== ACCESS CONTROL =====
+auth.onAuthStateChanged(async (user) => {
+    if (!user || !user.emailVerified) {
+        // Not logged in or email not verified → redirect to index
+        window.location.href = "index.html";
+        return;
+    }
+
+    currentUser = user;
+
+    // Check if onboarding is already done
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if (userDoc.exists && userDoc.data().onboardingDone) {
+        // Already completed → redirect to dashboard
+        window.location.href = "dashboard.html";
+    }
+});
+
+// ----- FINISH BUTTON -----
+document.getElementById('finishBtn').onclick = async ()=>{
+    if(!currentUser) return;
+
+    const favStyle = document.getElementById('favStyle').value || "Not selected";
+    const vocalPref = document.getElementById('vocalPref').value || "Not selected";
+    const frequency = document.getElementById('frequency').value || "Not selected";
+    const nickname = document.getElementById('nickname').value || "";
+
+    try{
+        await db.collection("users").doc(currentUser.uid).update({
+            onboardingDone: true,
+            favoriteStyle: favStyle,
+            vocalPreference: vocalPref,
+            frequency: frequency,
+            nickname: nickname
+        });
+        window.location.href = "dashboard.html";
+    }catch(err){
+        alert(err.message);
+    }
+};
+
+// ----- SKIP BUTTON -----
+document.getElementById('skipBtn').onclick = async ()=>{
+    if(!currentUser) return;
+    try{
+        await db.collection("users").doc(currentUser.uid).update({
+            onboardingDone:true
+        });
+        window.location.href = "dashboard.html";
+    }catch(err){
+        alert(err.message);
+    }
+};
+</script>
+</body>
+</html>
