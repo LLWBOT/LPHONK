@@ -2,183 +2,242 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>LPHONK — AI Brazilian Funk Vocal Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPHONK – Login / Register</title>
 
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<!-- ===========================
+     EMBEDDED STYLE
+=========================== -->
+<style>
+    body {
+        margin:0;
+        font-family: Arial, sans-serif;
+        background:#0a0a0a;
+        color:white;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        text-align:center;
+    }
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    .container {
+        width:90%;
+        max-width:380px;
+        padding:25px;
+        background:#111;
+        border-radius:12px;
+        border:1px solid #222;
+        box-shadow:0 0 20px rgba(255,255,255,0.05);
+    }
+
+    input {
+        width:100%;
+        padding:12px;
+        margin:10px 0;
+        border:none;
+        border-radius:8px;
+        background:#1b1b1b;
+        color:white;
+        font-size:15px;
+    }
+
+    button {
+        width:100%;
+        padding:12px;
+        margin-top:10px;
+        background:#4af;
+        border:none;
+        border-radius:8px;
+        font-weight:bold;
+        cursor:pointer;
+        color:black;
+        font-size:15px;
+    }
+
+    #authPopup {
+        position:fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.7);
+        display:none;
+        align-items:center;
+        justify-content:center;
+    }
+
+    #authPopup .popup-box {
+        background:#111;
+        padding:25px;
+        border-radius:10px;
+        max-width:300px;
+        border:1px solid #333;
+    }
+
+    #closeAuthPopup {
+        margin-top:15px;
+        padding:10px;
+        background:#4af;
+        border:none;
+        width:100%;
+        border-radius:8px;
+        font-weight:bold;
+        cursor:pointer;
+    }
+</style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<nav class="nav">
-  <div class="logo">LPHONK</div>
-
-  <div class="nav-buttons" id="navbarAuthButtons">
-    <button class="nav-btn gradient-btn" onclick="openAuthPopup('login')">Login</button>
-    <button class="nav-btn gradient-btn" onclick="openAuthPopup('signup')">Sign Up</button>
-  </div>
-
-  <div id="coinContainer" class="coins-box" style="display:none;">
-    <img src="assets/coin.png" alt="coin" class="coin-icon">
-    <span id="coinAmount">0</span>
-    <button id="open-coins-btn" class="coin-plus">+</button>
-  </div>
-</nav>
-
-<!-- HERO -->
-<header class="hero">
-  <div class="hero-left">
-    <h1 class="title">AI Brazilian Funk Vocals for Your Beats</h1>
-    <p class="subtitle">Upload an instrumental and generate bouncy funk vocals synced to your drop.</p>
-
-    <div id="mainButtons" class="hero-ctas">
-      <button class="primary-btn" onclick="openAuthPopup('signup')">Get Started — Free</button>
-      <button class="secondary-btn" onclick="openAuthPopup('login')">Login</button>
-      <button class="tertiary-btn" onclick="openModal('aboutModal')">Learn More</button>
-    </div>
-
-    <div id="generatorSection" style="display:none; margin-top: 35px;"></div>
-  </div>
-
-  <div class="hero-right">
-    <div class="hero-illustration">
-      <img src="assets/headphones.png" class="headphones" alt="Headphones">
-      <div class="waves">
-        <div class="wave wave-1"></div>
-        <div class="wave wave-2"></div>
-        <div class="wave wave-3"></div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- AUTH POPUP -->
-<div id="authPopup" class="modal">
-  <div class="modal-content">
-    <button class="close-x" onclick="closeAuthPopup()">✕</button>
-    <h3 class="modal-title">Account</h3>
-
-    <div id="authPopupMessage" class="modal-msg"></div>
+<div class="container">
+    <h2>Welcome to <span style="color:#4af;">LPHONK</span></h2>
 
     <input id="emailInput" type="email" placeholder="Email">
     <input id="passwordInput" type="password" placeholder="Password">
 
-    <div class="auth-btns">
-      <button id="loginBtn" class="primary-btn">Login</button>
-      <button id="registerBtn" class="secondary-btn">Sign Up</button>
+    <button id="loginBtn">Login</button>
+    <button id="registerBtn" style="background:#444;color:white;">Register</button>
+</div>
+
+<!-- ===========================
+     POPUP
+=========================== -->
+<div id="authPopup">
+    <div class="popup-box">
+        <p id="authPopupMessage"></p>
+        <button id="closeAuthPopup">Close</button>
     </div>
-
-    <small>After signup, verify your email. You'll be logged in automatically.</small>
-  </div>
 </div>
 
-<!-- COINS POPUP -->
-<div id="coinsPopup" class="modal">
-  <div class="modal-content">
-    <button class="close-x" onclick="closeCoinsPopup()">✕</button>
-    <h3 class="modal-title">Get Coins</h3>
-
-    <button id="youtubeClaimBtn" class="popup-btn">
-      <img src="assets/youtube.png" width="20"> Subscribe — +10 coins
-    </button>
-
-    <button id="dailyBtn" class="popup-btn">
-      <img src="assets/coin.png" width="20"> Daily +5 coins
-    </button>
-
-    <div class="redeem-box">
-      <input id="redeemCode" placeholder="Enter code">
-      <button id="redeemBtn">Redeem</button>
-    </div>
-  </div>
-</div>
-
-<!-- ABOUT MODAL -->
-<div id="aboutModal" class="modal">
-  <div class="modal-content scrollable">
-    <button class="close-x" onclick="closeModal('aboutModal')">✕</button>
-    <h3>About LPHONK</h3>
-    <p>LPHONK generates Brazilian Funk vocals synced to your beats using AI models trained for rhythm and bounce.</p>
-  </div>
-</div>
-
-<!-- PRIVACY MODAL -->
-<div id="privacyModal" class="modal">
-  <div class="modal-content scrollable">
-    <button class="close-x" onclick="closeModal('privacyModal')">✕</button>
-    <h3>Privacy</h3>
-    <p>Your files are only processed to generate vocals — never stored permanently.</p>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div>© 2025 LPHONK</div>
-  <div>
-    <a onclick="openModal('privacyModal')">Privacy</a> • 
-    <a onclick="openModal('aboutModal')">About</a>
-  </div>
-</footer>
-
-<!-- SCRIPTS -->
-<script src="auth.js" defer></script>
-<script src="coins.js" defer></script>
-<script src="animations.js" defer></script>
+<!-- ===========================
+     FIREBASE
+=========================== -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-// POPUP SYSTEM (fixed)
-let authMode = "login";
+// =======================
+//  Firebase Initialization
+// =======================
+const firebaseConfig = {
+  apiKey: "AIzaSyCzdCYFRu0Pn3TrImTNfG7xN0bcM_a48Ws",
+  authDomain: "lphonk.firebaseapp.com",
+  projectId: "lphonk",
+  storageBucket: "lphonk.firebasestorage.app",
+  messagingSenderId: "193256977034",
+  appId: "1:193256977034:web:38fd99c1da8e8f37507373",
+  measurementId: "G-5QMHMLDHBW"
+};
 
-function openAuthPopup(mode){
-  authMode = mode;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-  const title = document.querySelector(".modal-title");
-  const loginBtn = document.getElementById("loginBtn");
-  const registerBtn = document.getElementById("registerBtn");
+// =======================
+// POPUP
+// =======================
+function showPopup(msg) {
+    document.getElementById("authPopupMessage").innerHTML = msg;
+    document.getElementById("authPopup").style.display = "flex";
+}
+document.getElementById("closeAuthPopup").onclick = () => {
+    document.getElementById("authPopup").style.display = "none";
+};
 
-  document.getElementById("emailInput").value = "";
-  document.getElementById("passwordInput").value = "";
-  document.getElementById("authPopupMessage").innerHTML = "";
+// =======================
+// GIVE NEW USER COINS
+// =======================
+async function initNewUser(uid) {
+    const ref = db.collection("users").doc(uid);
+    const snap = await ref.get();
 
-  if(mode === "login"){
-    title.innerText = "Login";
-    loginBtn.style.display = "inline-block";
-    registerBtn.style.display = "none";
-  } else {
-    title.innerText = "Create Account";
-    loginBtn.style.display = "none";
-    registerBtn.style.display = "inline-block";
-  }
-
-  document.getElementById("authPopup").style.display = "flex";
-  document.body.classList.add("modal-open");
+    if (!snap.exists) {
+        await ref.set({
+            coins: 15,
+            dailyClaim: null,
+            youtubeClaimed: false,
+            onboardingDone: false
+        });
+    }
 }
 
-function closeAuthPopup(){
-  document.getElementById("authPopup").style.display = "none";
-  document.body.classList.remove("modal-open");
-}
+// =======================
+// REGISTER
+// =======================
+document.getElementById("registerBtn").onclick = async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
 
-function openModal(id){
-  document.getElementById(id).style.display = "flex";
-  document.body.classList.add("modal-open");
-}
-function closeModal(id){
-  document.getElementById(id).style.display = "none";
-  document.body.classList.remove("modal-open");
-}
+    try {
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        const user = result.user;
 
-function closeCoinsPopup(){
-  document.getElementById("coinsPopup").style.display = "none";
-  document.body.classList.remove("modal-open");
-}
+        await user.sendEmailVerification();
+
+        showPopup(`
+            Verification email sent to <b>${email}</b><br><br>
+            <span id="resendEmail" style="color:#4af;cursor:pointer;">Resend</span>
+        `);
+
+        document.getElementById("resendEmail").onclick = () => {
+            user.sendEmailVerification();
+            showPopup("Verification email resent!");
+        };
+
+        await initNewUser(user.uid);
+
+    } catch (err) {
+        showPopup(err.message);
+    }
+};
+
+// =======================
+// LOGIN
+// =======================
+document.getElementById("loginBtn").onclick = async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    try {
+        const result = await auth.signInWithEmailAndPassword(email, password);
+        const user = result.user;
+
+        await user.reload();
+
+        if (!user.emailVerified) {
+            showPopup("Verify your email before logging in.");
+            auth.signOut();
+            return;
+        }
+        showPopup("Login successful!");
+
+    } catch (err) {
+        showPopup(err.message);
+    }
+};
+
+// =======================
+// AUTH STATE LISTENER
+// =======================
+auth.onAuthStateChanged(async (user) => {
+    if (!user) return; // Not logged in → stay here
+
+    await user.reload();
+
+    if (!user.emailVerified) return;
+
+    // Check onboarding
+    const ref = db.collection("users").doc(user.uid);
+    const snap = await ref.get();
+
+    if (!snap.exists) return;
+
+    if (snap.data().onboardingDone === false) {
+        window.location.href = "onboarding.html";
+    } else {
+        window.location.href = "dashboard.html";
+    }
+});
 </script>
 
 </body>
